@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAMIS Eco Price List</title>
+    <title>KAMIS Eco Price and Period Product Data</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
         th { background-color: #f4f4f4; }
     </style>
@@ -17,7 +17,7 @@
     <h1>KAMIS Eco Price List</h1>
     <p>친환경 농산물의 최신 가격 정보를 아래 표에서 확인하세요.</p>
 
-    <table id="priceTable">
+    <table id="ecoPriceTable">
         <thead>
             <tr>
                 <th>품목</th>
@@ -25,35 +25,62 @@
                 <th>날짜</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- JSON 데이터로 채워질 부분 -->
-        </tbody>
+        <tbody></tbody>
+    </table>
+
+    <h1>KAMIS Period Product List</h1>
+    <p>일별 품목별 도·소매 가격 정보를 아래 표에서 확인하세요.</p>
+
+    <table id="periodProductTable">
+        <thead>
+            <tr>
+                <th>품목 코드</th>
+                <th>가격 정보</th>
+                <th>업데이트 날짜</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
     </table>
 
     <script>
-        // JSON 파일을 불러와 테이블에 표시하는 함수
         async function fetchEcoPriceList() {
             try {
                 const response = await fetch('eco_price_list.json');
-                if (!response.ok) {
-                    throw new Error('Failed to load JSON data');
-                }
                 const data = await response.json();
-                const tableBody = document.getElementById('priceTable').getElementsByTagName('tbody')[0];
+                const ecoTableBody = document.getElementById('ecoPriceTable').getElementsByTagName('tbody')[0];
 
                 data.forEach(item => {
-                    const row = tableBody.insertRow();
+                    const row = ecoTableBody.insertRow();
                     row.insertCell(0).textContent = item.item;
                     row.insertCell(1).textContent = item.price;
                     row.insertCell(2).textContent = item.datetime;
                 });
             } catch (error) {
-                console.error("데이터를 불러오는 중 오류 발생:", error);
+                console.error("친환경 농산물 데이터를 불러오는 중 오류 발생:", error);
             }
         }
 
-        // 페이지가 로드되면 함수 실행
-        window.onload = fetchEcoPriceList;
+        async function fetchPeriodProductList() {
+            try {
+                const response = await fetch('period_product_list.json');
+                const data = await response.json();
+                const periodTableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
+
+                data.forEach(item => {
+                    const row = periodTableBody.insertRow();
+                    row.insertCell(0).textContent = item.item_code;
+                    row.insertCell(1).textContent = JSON.stringify(item.prices);
+                    row.insertCell(2).textContent = item.datetime;
+                });
+            } catch (error) {
+                console.error("일별 품목별 데이터를 불러오는 중 오류 발생:", error);
+            }
+        }
+
+        window.onload = () => {
+            fetchEcoPriceList();
+            fetchPeriodProductList();
+        };
     </script>
 
 </body>
