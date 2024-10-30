@@ -38,10 +38,11 @@ jobs:
         python .github/period_product_list.py
 
     - name: Commit and Push JSON File
+      continue-on-error: true
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        
+       
         # Check if either JSON file has been modified
         if [ -s docs/price_list.json ] || [ -s docs/period_product_list.json ]; then
             git add docs/price_list.json docs/period_product_list.json
