@@ -2,14 +2,14 @@ name: Fetch KAMIS Data
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # 매 10분마다 실행
+    - cron: '*/1 * * * *'  # 매 10분마다 실행
     
 jobs:
   fetch-kamis-data:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # 버전 v3로 업데이트
 
       - name: Fetch KAMIS Data
         env:
