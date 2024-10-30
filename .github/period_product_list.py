@@ -39,7 +39,7 @@ def save_period_product_data():
 
     if all_price_data:
         with open('docs/period_product_list.json', 'w') as file:
-            json.dump(all_price_data, file, ensure_ascii=False, indent=4)
+            json.dump(data, file)
         print("period_product_list.json created and data saved.")
     else:
         print("No period product data collected.")
