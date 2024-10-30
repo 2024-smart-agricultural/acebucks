@@ -1,4 +1,3 @@
-
 import os
 import json
 import requests
@@ -8,7 +7,7 @@ import time
 
 def get_kamis_data(item):
     try:
-        api_key = os.getenv('KAMIS_KEY')  # 환경 변수에서 KAMIS API 키 가져오기
+        api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList&key={api_key}&categoryCode=200&itemCode={item}&productClsCode=01&startDay=20240101&endDay=20241231&countryCode=1101&type=json"
 
         start_time = time.time()
@@ -22,7 +21,7 @@ def get_kamis_data(item):
             data = response.json()
             price_info = {
                 "item": item,
-                "price": data["price"],
+                "price": data.get("price"),  # 가격 정보가 "price"에 있다고 가정
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             print(f"Data for {item} successfully retrieved.")
@@ -35,7 +34,7 @@ def get_kamis_data(item):
         return None
 
 def save_kamis_data():
-    item_list = ["tomato", "melon", "banana", "pineapple", "lemon"]  # 수집할 항목 목록
+    item_list = ["tomato", "melon", "banana", "pineapple", "lemon"]
     all_price_data = []
 
     for item in item_list:
@@ -52,10 +51,10 @@ def save_kamis_data():
                         stored_data.append(price)
                 file.seek(0)
                 json.dump(stored_data, file, ensure_ascii=False, indent=4)
-            print("KAMIS data saved to kamis_data.json.")
+            print("KAMIS data saved to eco_price_list.json.")
         except FileNotFoundError:
             with open('docs/eco_price_list.json', 'w') as file:
-                json.dump(data, file)
+                json.dump(all_price_data, file, ensure_ascii=False, indent=4)
             print("eco_price_list.json created and data saved.")
     else:
         print("No KAMIS data collected.")
@@ -65,7 +64,7 @@ def save_kamis_data():
 def commit_and_push_changes():
     subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
     subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
-    subprocess.run(["git", "add", "docs/kamis_data.json"])
+    subprocess.run(["git", "add", "docs/eco_price_list.json"])  # 올바른 파일명 사용
     subprocess.run(["git", "commit", "-m", "Update KAMIS data"])
     subprocess.run(["git", "push"])
 
