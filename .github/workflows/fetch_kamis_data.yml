@@ -37,15 +37,11 @@ jobs:
               echo "eco_price_list.json 파일이 생성되지 않았습니다. 파일 경로를 다시 확인하세요."
               exit 1
           fi
-          
-          # acebucks/docs 디렉터리로 파일 이동
-          mkdir -p docs
-          mv eco_price_list.json docs/eco_price_list.json
 
       - name: Commit and Push JSON File
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add docs/eco_price_list.json
-          git commit -m 'Update eco price list every 10 minutes'
+          git commit -m 'Update eco price list every 15 minutes'
           git push
