@@ -2,7 +2,7 @@ name: Fetch KAMIS EcoPriceList
 
 on:
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '*/10 * * * *' # 매 10분마다 실행
 
 jobs:
   fetch_eco_price_list:
@@ -16,7 +16,7 @@ jobs:
           KAMIS_API_KEY: ${{ secrets.KAMIS_KEY }}
         run: |
           # API 요청을 통해 JSON 파일로 저장
-          curl -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_API_KEY}&p_cert_key=${KAMIS_API_KEY}&p_cert_id=인증아이디&price_type=0&p_returntype=json" -o eco_price_list.json
+          curl -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_API_KEY}&p_cert_id=인증아이디&price_type=0&p_returntype=json" -o eco_price_list.json
 
           # acebucks/docs 디렉터리로 파일 이동
           mkdir -p acebucks/docs
