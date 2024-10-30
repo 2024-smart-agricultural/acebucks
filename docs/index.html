@@ -123,16 +123,21 @@
     // UI 업데이트 함수
     function updateUI(user) {
         const loginContainer = document.getElementById("login-container");
-        const signupContainer = document.getElementById("signup-container");
         const logoutButton = document.getElementById("logout-btn");
-
+        const ecoPriceTable = document.getElementById("ecoPriceTable");
+        const ecoPriceTitle = document.getElementById("ecoPriceTitle");
+    
         if (user) {
             loginContainer.classList.add("hidden");
-            signupContainer.classList.add("hidden");
             logoutButton.style.display = "block";
+            ecoPriceTable.style.display = "table";
+            ecoPriceTitle.classList.remove("hidden");
+            fetchEcoPriceList();
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
+            ecoPriceTable.style.display = "none";
+            ecoPriceTitle.classList.add("hidden");
         }
     }
 
