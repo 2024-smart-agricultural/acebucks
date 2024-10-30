@@ -2,7 +2,7 @@ name: Fetch KAMIS Data
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # 매 10분마다 실행
+    - cron: '*/2 * * * *'
     
 jobs:
   fetch-kamis-data:
