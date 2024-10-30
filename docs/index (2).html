@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAMIS Eco Price List</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+
+    <h1>KAMIS Eco Price List</h1>
+    <p>친환경 농산물의 최신 가격 정보를 아래 표에서 확인하세요.</p>
+
+    <table id="priceTable">
+        <thead>
+            <tr>
+                <th>품목</th>
+                <th>가격</th>
+                <th>날짜</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- JSON 데이터로 채워질 부분 -->
+        </tbody>
+    </table>
+
+    <script>
+        // JSON 파일을 불러와 테이블에 표시하는 함수
+        async function fetchEcoPriceList() {
+            try {
+                const response = await fetch('eco_price_list.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load JSON data');
+                }
+                const data = await response.json();
+                const tableBody = document.getElementById('priceTable').getElementsByTagName('tbody')[0];
+
+                data.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = item.item;
+                    row.insertCell(1).textContent = item.price;
+                    row.insertCell(2).textContent = item.datetime;
+                });
+            } catch (error) {
+                console.error("데이터를 불러오는 중 오류 발생:", error);
+            }
+        }
+
+        // 페이지가 로드되면 함수 실행
+        window.onload = fetchEcoPriceList;
+    </script>
+
+</body>
+</html>
