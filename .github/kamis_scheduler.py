@@ -64,8 +64,16 @@ def save_kamis_data():
 def commit_and_push_changes():
     subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
     subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
-    subprocess.run(["git", "add", "docs/eco_price_list.json"])  # 올바른 파일명 사용
-    subprocess.run(["git", "commit", "-m", "Update KAMIS data"])
-    subprocess.run(["git", "push"])
+    
+    # JSON 파일을 스테이징
+    subprocess.run(["git", "add", "docs/eco_price_list.json", "docs/period_product_list.json"])
+    
+    # 변경 사항이 있을 때만 커밋
+    result = subprocess.run(["git", "diff", "--cached", "--quiet"])
+    if result.returncode != 0:
+        subprocess.run(["git", "commit", "-m", "Update KAMIS data"])
+        subprocess.run(["git", "push"])
+    else:
+        print("No changes to commit.")
 
 save_kamis_data()
