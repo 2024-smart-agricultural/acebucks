@@ -203,7 +203,7 @@
 
     async function fetchPeriodProductList() {
         try {
-            const response = await fetch('docs/period_product_list.json');
+            const response = await fetch('period_product_list.json');
             const data = await response.json();
             const tableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
