@@ -1,8 +1,9 @@
-
+import subprocess
 import os
 import json
 import requests
 from datetime import datetime
+
 def get_period_product_data(item_code):
     try:
         api_key = os.getenv('KAMIS_KEY')
