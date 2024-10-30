@@ -3,57 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <title>KAMIS 가격 정보</title>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: #f4f4f4; }
+        .container { width: 300px; margin: 20px auto; text-align: center; }
+        .hidden { display: none; }
+        button { padding: 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <h1>KAMIS Eco Price List</h1>
-    <table id="ecoPriceTable">
-        <thead>
-            <tr>
-                <th>품목</th><th>가격</th><th>날짜</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
 
-    <h1>KAMIS Period Product List</h1>
-    <table id="periodProductTable">
+    <div class="container">
+        <h1>로그인</h1>
+        <button id="login-btn">로그인</button>
+        <button id="logout-btn" class="hidden">로그아웃</button>
+        <p id="status-message">로그인하여 데이터를 확인하세요.</p>
+    </div>
+
+    <h1>KAMIS Eco Price List</h1>
+    <table id="ecoPriceTable" class="hidden">
         <thead>
             <tr>
-                <th>품목 코드</th><th>가격 정보</th><th>업데이트 날짜</th>
+                <th>품목명</th><th>마켓명</th><th>단위</th><th>날짜</th><th>가격</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
 
     <script>
+        // Netlify Identity 초기화
+        netlifyIdentity.init();
+
+        netlifyIdentity.on('init', user => updateUI(user));
+        netlifyIdentity.on('login', user => { updateUI(user); netlifyIdentity.close(); });
+        netlifyIdentity.on('logout', () => updateUI(null));
+
+        document.getElementById('login-btn').addEventListener('click', () => netlifyIdentity.open());
+        document.getElementById('logout-btn').addEventListener('click', () => netlifyIdentity.logout());
+
+        function updateUI(user) {
+            const statusMessage = document.getElementById('status-message');
+            const loginButton = document.getElementById('login-btn');
+            const logoutButton = document.getElementById('logout-btn');
+            const ecoPriceTable = document.getElementById('ecoPriceTable');
+
+            if (user) {
+                statusMessage.textContent = `안녕하세요, ${user.user_metadata.full_name}님!`;
+                loginButton.classList.add('hidden');
+                logoutButton.classList.remove('hidden');
+                ecoPriceTable.classList.remove('hidden');
+                fetchEcoPriceList();
+            } else {
+                statusMessage.textContent = '로그인하여 데이터를 확인하세요.';
+                loginButton.classList.remove('hidden');
+                logoutButton.classList.add('hidden');
+                ecoPriceTable.classList.add('hidden');
+            }
+        }
+
+        // Eco Price List 데이터 가져오기
         async function fetchEcoPriceList() {
-            const response = await fetch('eco_price_list.json');
-            const data = await response.json();
-            const tableBody = document.getElementById('ecoPriceTable').getElementsByTagName('tbody')[0];
-            data.forEach(item => {
-                const row = tableBody.insertRow();
-                row.insertCell(0).textContent = item.item;
-                row.insertCell(1).textContent = item.price;
-                row.insertCell(2).textContent = item.datetime;
-            });
+            try {
+                const response = await fetch('eco_price_list.json');
+                const data = await response.json();
+                const tableBody = document.getElementById('ecoPriceTable').getElementsByTagName('tbody')[0];
+                tableBody.innerHTML = '';
+
+                data.data.item.forEach(item => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = item.countyname;
+                    row.insertCell(1).textContent = item.marketname || 'N/A';
+                    row.insertCell(2).textContent = item.unit;
+                    row.insertCell(3).textContent = item.regday;
+                    row.insertCell(4).textContent = item.price;
+                });
+            } catch (error) {
+                console.error("Eco Price List 데이터를 가져오는 중 오류 발생:", error);
+            }
         }
 
-        async function fetchPeriodProductList() {
-            const response = await fetch('period_product_list.json');
-            const data = await response.json();
-            const tableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
-            data.forEach(item => {
-                const row = tableBody.insertRow();
-                row.insertCell(0).textContent = item.item_code;
-                row.insertCell(1).textContent = JSON.stringify(item.prices);
-                row.insertCell(2).textContent = item.datetime;
-            });
-        }
-
+        // 페이지가 로드되면 로그인 상태 확인 및 UI 설정
         window.onload = () => {
-            fetchEcoPriceList();
-            fetchPeriodProductList();
+            if (netlifyIdentity.currentUser()) {
+                updateUI(netlifyIdentity.currentUser());
+            }
         };
     </script>
+
 </body>
 </html>
