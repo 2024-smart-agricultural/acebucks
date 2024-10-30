@@ -1,5 +1,5 @@
 
-name: Fetch KAMIS EcoPriceList
+name: Fetch KAMIS EcoPriceList 2
 
 on:
   schedule:
