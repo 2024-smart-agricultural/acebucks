@@ -173,6 +173,26 @@
         }
     }
 
+    async function fetchPeriodProductList() {
+        try {
+            const response = await fetch('docs/period_product_list.json');
+            const data = await response.json();
+            const tableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = item.item_code;
+                row.insertCell(1).textContent = JSON.stringify(item.data);  // 모든 정보를 JSON 형식으로 표시
+                row.insertCell(2).textContent = item.datetime;
+            });
+                
+            document.getElementById('periodProductTable').classList.remove('hidden'); // 테이블 표시
+        } catch (error) {
+            console.error("Period Product List 데이터를 가져오는 중 오류 발생:", error);
+        }
+    }
+
     // 페이지가 로드되면 로그인 상태 확인 및 UI 설정
     window.onload = () => {
         const currentUser = netlifyIdentity.currentUser();
