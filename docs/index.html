@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>커스텀 로그인</title>
+    <title>농산물 가격 정보 로그인</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         body {
@@ -12,19 +12,23 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f0fff4;
+            margin: 0;
+            background-color: #fff8e1;
         }
         .login-container {
             text-align: center;
+            margin-bottom: 20px;
             padding: 20px;
-            border: 2px solid #a8e6cf;
-            border-radius: 8px;
-            background-color: #dcffcc;
+            border: 2px solid #ffcc80;
+            border-radius: 15px;
+            background-color: #ffecb3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 300px;
         }
-        .login-container h1 {
-            color: #34a853;
-            font-size: 24px;
+        h1 {
+            color: #ff6f00;
+            font-size: 26px;
+            margin-bottom: 10px;
         }
         .input-field {
             width: 90%;
@@ -33,58 +37,101 @@
             border: 1px solid #a8e6cf;
             border-radius: 5px;
         }
-        .login-btn {
+        .button {
             padding: 10px 20px;
-            background-color: #34a853;
-            color: white;
+            margin: 10px 5px;
+            font-size: 16px;
+            background-color: #ff7043;
+            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
+            transition: background-color 0.3s;
         }
-        .login-btn:hover {
-            background-color: #2d8a48;
+        .button:hover {
+            background-color: #e64a19;
         }
-        .message {
-            color: #333;
+        .hidden {
+            display: none;
+        }
+        #status-message {
+            color: #6d4c41;
             font-size: 14px;
-            margin-top: 15px;
+        }
+        table {
+            width: 90%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin-top: 20px;
+            display: none;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #ffcc80;
+            font-weight: bold;
+            color: #4e342e;
         }
     </style>
 </head>
 <body>
 
 <div class="login-container">
-    <h1>🍎 로그인 🍏</h1>
-    <input type="email" id="email" class="input-field" placeholder="이메일" required>
-    <input type="password" id="password" class="input-field" placeholder="비밀번호" required>
-    <button class="login-btn" onclick="handleLogin()">로그인</button>
-    <button class="login-btn" onclick="handleSignup()">가입하기</button>
-    <p class="message" id="status-message">환영합니다!</p>
+    <h1>🍏 농산물 가격 정보 🍎</h1>
+    <input type="email" id="email" class="input-field" placeholder="이메일">
+    <input type="password" id="password" class="input-field" placeholder="비밀번호">
+    <button class="button" onclick="handleLogin()">🌿 로그인</button>
+    <button class="button" onclick="handleSignup()">🍒 가입하기</button>
+    <button class="button hidden" id="logout-btn" onclick="handleLogout()">🍂 로그아웃</button>
+    <p id="status-message">로그인하여 🍅 데이터를 확인하세요.</p>
 </div>
 
+<h1 id="ecoPriceTitle" class="hidden">KAMIS Eco Price List</h1>
+<table id="ecoPriceTable">
+    <thead>
+        <tr>
+            <th>품목명 🥦</th>
+            <th>마켓명 🛒</th>
+            <th>단위 📏</th>
+            <th>날짜 📅</th>
+            <th>가격 💰</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
 <script>
+    // Netlify Identity 초기화
     netlifyIdentity.init();
 
-    // 로그인 함수
+    // 로그인 처리 함수
     function handleLogin() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         netlifyIdentity.gotrue.login(email, password)
             .then(user => {
-                document.getElementById("status-message").textContent = `안녕하세요, ${user.email}님!`;
+                updateUI(user);
+                document.getElementById("status-message").textContent = `안녕하세요, ${user.email}님! 🍇`;
             })
             .catch(error => {
                 document.getElementById("status-message").textContent = "로그인 실패: " + error.message;
             });
     }
 
-    // 가입 함수
+    // 가입 처리 함수
     function handleSignup() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         netlifyIdentity.gotrue.signup(email, password)
             .then(user => {
+                updateUI(user);
                 document.getElementById("status-message").textContent = `가입 성공! 환영합니다, ${user.email}님!`;
             })
             .catch(error => {
@@ -92,13 +139,67 @@
             });
     }
 
-    // 로그아웃 함수
+    // 로그아웃 처리 함수
     function handleLogout() {
         netlifyIdentity.logout()
             .then(() => {
+                updateUI(null);
                 document.getElementById("status-message").textContent = "로그아웃 되었습니다.";
             });
     }
+
+    // UI 업데이트 함수
+    function updateUI(user) {
+        const loginButton = document.querySelector(".button[onclick='handleLogin()']");
+        const signupButton = document.querySelector(".button[onclick='handleSignup()']");
+        const logoutButton = document.getElementById("logout-btn");
+        const ecoPriceTable = document.getElementById("ecoPriceTable");
+        const ecoPriceTitle = document.getElementById("ecoPriceTitle");
+
+        if (user) {
+            loginButton.classList.add('hidden');
+            signupButton.classList.add('hidden');
+            logoutButton.classList.remove('hidden');
+            ecoPriceTable.style.display = "table";
+            ecoPriceTitle.classList.remove("hidden");
+            fetchEcoPriceList();
+        } else {
+            loginButton.classList.remove('hidden');
+            signupButton.classList.remove('hidden');
+            logoutButton.classList.add('hidden');
+            ecoPriceTable.style.display = "none";
+            ecoPriceTitle.classList.add("hidden");
+        }
+    }
+
+    // Eco Price List 데이터 가져오기
+    async function fetchEcoPriceList() {
+        try {
+            const response = await fetch('eco_price_list.json');
+            const data = await response.json();
+            const tableBody = document.getElementById('ecoPriceTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            data.data.item.forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = item.countyname;
+                row.insertCell(1).textContent = item.marketname || 'N/A';
+                row.insertCell(2).textContent = item.unit;
+                row.insertCell(3).textContent = item.regday;
+                row.insertCell(4).textContent = item.price;
+            });
+        } catch (error) {
+            console.error("Eco Price List 데이터를 가져오는 중 오류 발생:", error);
+        }
+    }
+
+    // 페이지가 로드되면 로그인 상태 확인 및 UI 설정
+    window.onload = () => {
+        const currentUser = netlifyIdentity.currentUser();
+        if (currentUser) {
+            updateUI(currentUser);
+        }
+    };
 </script>
 
 </body>
