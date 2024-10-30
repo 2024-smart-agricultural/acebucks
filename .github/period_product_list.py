@@ -3,8 +3,6 @@ import os
 import json
 import requests
 from datetime import datetime
-import subprocess
-
 def get_period_product_data(item_code):
     try:
         api_key = os.getenv('KAMIS_KEY')
@@ -17,7 +15,7 @@ def get_period_product_data(item_code):
             data = response.json()
             price_info = {
                 "item_code": item_code,
-                "prices": data["data"],
+                "prices": data.get("data", []),
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return price_info
@@ -37,9 +35,10 @@ def save_period_product_data():
         if new_price_data:
             all_price_data.append(new_price_data)
 
+    # JSON 파일에 데이터를 저장
     if all_price_data:
         with open('docs/period_product_list.json', 'w') as file:
-            json.dump(data, file)
+            json.dump(all_price_data, file, ensure_ascii=False, indent=4)
         print("period_product_list.json created and data saved.")
     else:
         print("No period product data collected.")
