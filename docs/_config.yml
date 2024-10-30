@@ -1,0 +1,3 @@
+# acebucks/_config.yml
+source: "."
+destination: "./_site"
