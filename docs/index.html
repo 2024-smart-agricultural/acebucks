@@ -190,7 +190,7 @@
     // Eco Price List 데이터 가져오기
     async function fetchEcoPriceList() {
         try {
-            const response = await fetch('eco_price_list.json');
+            const response = await fetch('./eco_price_list.json');
             const data = await response.json();
             const tableBody = document.getElementById('ecoPriceTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
@@ -211,7 +211,7 @@
     // Period Product List 데이터 가져오기
     async function fetchPeriodProductList() {
         try {
-            const response = await fetch('period_product_list.json');
+            const response = await fetch('./period_product_list.json');
             const data = await response.json();
             const tableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
