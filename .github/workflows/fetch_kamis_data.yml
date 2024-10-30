@@ -18,7 +18,7 @@ jobs:
           
         run: |
           # API 요청을 통해 JSON 파일로 저장
-          curl -w "%{http_code}\n" -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o eco_price_list.json
+          curl -v -w "%{http_code}\n" -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o eco_price_list.json
 
           if [ "$response" -eq 200 ]; then
               echo "API 요청 성공"
