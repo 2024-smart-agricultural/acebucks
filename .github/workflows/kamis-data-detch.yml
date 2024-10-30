@@ -15,14 +15,14 @@ jobs:
         env:
           KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
         run: |
-          mkdir -p acebucks/data
+          mkdir -p docs
           curl -s "https://www.kamis.or.kr/service/KamisService/getDailyPriceData?apikey=${KAMIS_KEY}&itemCategoryCode=..." \
-          -o acebucks/data/kamis_data.json
+          -o docs/kamis_data.json
 
       - name: Commit and Push JSON Data
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add acebucks/data/kamis_data.json
+          git add docs/kamis_data.json
           git commit -m "Update KAMIS data"
           git push
