@@ -18,33 +18,34 @@ jobs:
           
         run: |
           # API 요청을 통해 JSON 파일로 저장
+          echo "EcoPriceList 데이터를 요청합니다..."
           response=$(curl -w "%{http_code}" -X GET "https://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o eco_price_list.json)
           
           if [ "$response" -eq 200 ]; then
-              echo "API 요청 성공"
+              echo "API 요청 성공: eco_price_list.json 파일을 저장했습니다."
           else
               echo "API 요청 실패, 상태 코드: $response"
               exit 1
           fi
           
           # eco_price_list.json 파일이 생성되었는지 확인
-          if [ -f eco_price_list.json ]; then
-              mkdir -p acebucks/docs
-              mv eco_price_list.json acebucks/docs/eco_price_list.json
-              echo "파일이 acebucks/docs/eco_price_list.json으로 이동되었습니다."
+          if [ -f "eco_price_list.json" ]; then
+              mkdir -p docs
+              mv eco_price_list.json docs/eco_price_list.json
+              echo "파일이 docs/eco_price_list.json으로 이동되었습니다."
           else
-              echo "eco_price_list.json 파일이 생성되지 않았습니다."
+              echo "eco_price_list.json 파일이 생성되지 않았습니다. 파일 경로를 다시 확인하세요."
               exit 1
           fi
-
+          
           # acebucks/docs 디렉터리로 파일 이동
-          mkdir -p acebucks/docs
-          mv eco_price_list.json acebucks/docs/eco_price_list.json
+          mkdir -p docs
+          mv eco_price_list.json docs/eco_price_list.json
 
       - name: Commit and Push JSON File
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add acebucks/docs/eco_price_list.json
+          git add docs/eco_price_list.json
           git commit -m 'Update eco price list every 10 minutes'
           git push
