@@ -47,10 +47,18 @@ def save_period_product_data():
     commit_and_push_changes()
 
 def commit_and_push_changes():
-    subprocess.run(["git", "config", "--global", "user.name", "github-actions[bot]"])
-    subprocess.run(["git", "config", "--global", "user.email", "github-actions[bot]@users.noreply.github.com"])
-    subprocess.run(["git", "add", "docs/period_product_list.json"])
-    subprocess.run(["git", "commit", "-m", "Update period product data"])
-    subprocess.run(["git", "push"])
+    - name: Commit and Push JSON File
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        
+        # Check if either JSON file has been modified
+        if [ -s docs/price_list.json ] || [ -s docs/period_product_list.json ]; then
+            git add docs/price_list.json docs/period_product_list.json
+            git commit -m 'Update KAMIS Eco Price List and Period Product data'
+            git push
+        else
+            echo "No changes to commit."
+        fi
 
 save_period_product_data()
