@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # 버전 v3로 업데이트
+        uses: actions/checkout@v3  # v3 버전 사용
 
       - name: Fetch KAMIS Data
         env:
@@ -31,8 +31,8 @@ jobs:
             exit 0
           else
             git stash  # 변경 사항을 임시 저장
-            git pull --rebase origin main
+            git pull --rebase origin source  # source 브랜치에서 최신 변경 사항 가져오기
             git stash pop  # 변경 사항을 다시 적용
             git commit -m "Update KAMIS data"
-            git push origin main
+            git push origin source  # source 브랜치로 푸시
           fi
