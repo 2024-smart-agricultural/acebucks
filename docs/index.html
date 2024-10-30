@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>KAMIS 가격 정보</title>
+    <title>농산물 가격 정보 로그인</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         body {
@@ -13,20 +13,20 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f9f9f9;
+            background-color: #fff8e1;
         }
         .container {
             text-align: center;
             margin-bottom: 20px;
             padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ffcc80;
+            border-radius: 15px;
+            background-color: #ffecb3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         h1 {
-            color: #333;
-            font-size: 24px;
+            color: #ff6f00;
+            font-size: 26px;
             margin-bottom: 10px;
         }
         table {
@@ -46,9 +46,9 @@
             text-align: center;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #ffcc80;
             font-weight: bold;
-            color: #333;
+            color: #4e342e;
         }
         .hidden {
             display: none;
@@ -58,17 +58,17 @@
             margin: 10px 0;
             cursor: pointer;
             font-size: 16px;
-            background-color: #007bff;
+            background-color: #ff7043;
             color: #fff;
             border: none;
             border-radius: 5px;
             transition: background-color 0.3s;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #e64a19;
         }
         #status-message {
-            color: #666;
+            color: #6d4c41;
             font-size: 14px;
         }
     </style>
@@ -76,21 +76,21 @@
 <body>
 
     <div class="container">
-        <h1>로그인</h1>
-        <button id="login-btn">로그인</button>
-        <button id="logout-btn" class="hidden">로그아웃</button>
-        <p id="status-message">로그인하여 데이터를 확인하세요.</p>
+        <h1>🍏 농산물 가격 정보 🍎</h1>
+        <button id="login-btn">🌿 로그인</button>
+        <button id="logout-btn" class="hidden">🍂 로그아웃</button>
+        <p id="status-message">로그인하여 🍅 데이터를 확인하세요.</p>
     </div>
 
     <h1 id="ecoPriceTitle" class="hidden">KAMIS Eco Price List</h1>
     <table id="ecoPriceTable">
         <thead>
             <tr>
-                <th>품목명</th>
-                <th>마켓명</th>
-                <th>단위</th>
-                <th>날짜</th>
-                <th>가격</th>
+                <th>품목명 🥦</th>
+                <th>마켓명 🛒</th>
+                <th>단위 📏</th>
+                <th>날짜 📅</th>
+                <th>가격 💰</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -115,14 +115,14 @@
             const ecoPriceTitle = document.getElementById('ecoPriceTitle');
 
             if (user) {
-                statusMessage.textContent = `안녕하세요, ${user.user_metadata.full_name}님!`;
+                statusMessage.textContent = `안녕하세요, ${user.user_metadata.full_name}님! 🍇`;
                 loginButton.classList.add('hidden');
                 logoutButton.classList.remove('hidden');
                 ecoPriceTable.style.display = "table";
                 ecoPriceTitle.classList.remove("hidden");
                 fetchEcoPriceList();
             } else {
-                statusMessage.textContent = '로그인하여 데이터를 확인하세요.';
+                statusMessage.textContent = '로그인하여 🍅 데이터를 확인하세요.';
                 loginButton.classList.remove('hidden');
                 logoutButton.classList.add('hidden');
                 ecoPriceTable.style.display = "none";
