@@ -54,9 +54,9 @@ def save_kamis_data():
                 json.dump(stored_data, file, ensure_ascii=False, indent=4)
             print("KAMIS data saved to kamis_data.json.")
         except FileNotFoundError:
-            with open('docs/kamis_data.json', 'w') as file:
-                json.dump(all_price_data, file, ensure_ascii=False, indent=4)
-            print("kamis_data.json created and data saved.")
+            with open('docs/eco_price_list.json', 'w') as file:
+                json.dump(data, file)
+            print("eco_price_list.json created and data saved.")
     else:
         print("No KAMIS data collected.")
 
