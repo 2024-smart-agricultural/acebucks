@@ -2,43 +2,43 @@ name: Fetch KAMIS Data
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
-    
+    - cron: '*/10 * * * *'  # 10분마다 실행
+
 jobs:
   collect_weather_data:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: 3.x
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.x
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --upgrade --force-reinstall -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade --force-reinstall -r requirements.txt
 
-    - name: Run KAMIS data collection
-      env:
-        KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
+      - name: Run KAMIS data collection
+        env:
+          KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
         run: python .github/kamis_data_fetch.py
 
-    - name: Commit and Push JSON Data
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # ACTION_DEPLOY_KEY 대신 GITHUB_TOKEN 사용
-      run: |
-        git config --local user.email "you@example.com"
-        git config --local user.name "Your Name"
-        git add docs/kamis_data.json
-        if git diff --cached --quiet; then
-          echo "No changes to commit"
-          exit 0
-        else
+      - name: Commit and Push JSON Data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # ACTION_DEPLOY_KEY 대신 GITHUB_TOKEN 사용
+        run: |
+          git config --local user.email "you@example.com"
+          git config --local user.name "Your Name"
+          git add docs/kamis_data.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          else
             git pull --rebase origin source
             git commit -m "Update KAMIS data"
             git push origin source
-        fi
+          fi
