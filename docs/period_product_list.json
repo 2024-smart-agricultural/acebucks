@@ -1,37 +1,37 @@
 [
     {
         "item_code": "tomato",
-        "prices": [
+        "data": [
             "900"
         ],
-        "datetime": "2024-10-30 18:40:26"
+        "datetime": "2024-10-30 18:51:40"
     },
     {
         "item_code": "melon",
-        "prices": [
+        "data": [
             "900"
         ],
-        "datetime": "2024-10-30 18:40:27"
+        "datetime": "2024-10-30 18:51:41"
     },
     {
         "item_code": "banana",
-        "prices": [
+        "data": [
             "900"
         ],
-        "datetime": "2024-10-30 18:40:28"
+        "datetime": "2024-10-30 18:51:41"
     },
     {
         "item_code": "pineapple",
-        "prices": [
+        "data": [
             "900"
         ],
-        "datetime": "2024-10-30 18:40:29"
+        "datetime": "2024-10-30 18:51:42"
     },
     {
         "item_code": "lemon",
-        "prices": [
+        "data": [
             "900"
         ],
-        "datetime": "2024-10-30 18:40:30"
+        "datetime": "2024-10-30 18:51:43"
     }
 ]
