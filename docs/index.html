@@ -154,18 +154,25 @@
         const logoutButton = document.getElementById("logout-btn");
         const ecoPriceTable = document.getElementById("ecoPriceTable");
         const ecoPriceTitle = document.getElementById("ecoPriceTitle");
+        const periodProductTable = document.getElementById("periodProductTable");
+        const periodPriceTitle = document.getElementById("periodPriceTitle");
     
         if (user) {
             loginContainer.classList.add("hidden");
             logoutButton.style.display = "block";
             ecoPriceTable.style.display = "table";
             ecoPriceTitle.classList.remove("hidden");
+            periodProductTable.classList.remove("hidden");
+            periodPriceTitle.classList.remove("hidden");
             fetchEcoPriceList();
+            fetchPeriodProductList();
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
             ecoPriceTable.style.display = "none";
             ecoPriceTitle.classList.add("hidden");
+            periodProductTable.classList.add("hidden");
+            periodPriceTitle.classList.add("hidden");
         }
     }
 
@@ -181,7 +188,7 @@
     }
 
     // Eco Price List 데이터 가져오기
-   async function fetchEcoPriceList() {
+    async function fetchEcoPriceList() {
         try {
             const response = await fetch('eco_price_list.json');
             const data = await response.json();
@@ -201,9 +208,10 @@
         }
     }
 
+    // Period Product List 데이터 가져오기
     async function fetchPeriodProductList() {
         try {
-            const response = await fetch('price_list.json');
+            const response = await fetch('period_product_list.json');
             const data = await response.json();
             const tableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
@@ -214,8 +222,6 @@
                 row.insertCell(1).textContent = JSON.stringify(item.data);  // 모든 정보를 JSON 형식으로 표시
                 row.insertCell(2).textContent = item.datetime;
             });
-                
-            document.getElementById('periodProductTable').classList.remove('hidden'); // 테이블 표시
         } catch (error) {
             console.error("Price List 데이터를 가져오는 중 오류 발생:", error);
         }
