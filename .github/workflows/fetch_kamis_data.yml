@@ -19,7 +19,7 @@ jobs:
         run: |
           # API 요청을 통해 JSON 파일로 저장
           echo "PriceList 데이터를 요청합니다..."
-          response=$(curl -w "%{http_code}" -X GET "https://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o eco_price_list.json)
+          response=$(curl -w "%{http_code}" -X GET "https://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o price_list.json)
           
           if [ "$response" -eq 200 ]; then
               echo "API 요청 성공: price_list.json 파일을 저장했습니다."
@@ -37,7 +37,7 @@ jobs:
               echo "price_list.json 파일이 생성되지 않았습니다. 파일 경로를 다시 확인하세요."
               exit 1
           fi
-
+          
       - name: Commit and Push JSON File
         run: |
           git config --global user.name 'github-actions[bot]'
