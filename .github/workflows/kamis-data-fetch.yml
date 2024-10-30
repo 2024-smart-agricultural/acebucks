@@ -28,7 +28,7 @@ jobs:
 
       - name: Commit and Push JSON Data
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_DEPLOY_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # ACTION_DEPLOY_KEY 대신 GITHUB_TOKEN 사용
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
