@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KAMIS Data Viewer</title>
+</head>
+<body>
+  <h1>실시간 과일 가격 데이터</h1>
+  <div id="data-container">데이터 로딩 중...</div>
+
+  <script>
+    async function fetchKamisData() {
+      try {
+        const response = await fetch('./data/kamis_data.json');
+        const data = await response.json();
+
+        let htmlContent = '<h2>가격 정보</h2><ul>';
+        data.forEach(item => {
+          htmlContent += `<li>${item.name}: ${item.price}원</li>`;
+        });
+        htmlContent += '</ul>';
+
+        document.getElementById('data-container').innerHTML = htmlContent;
+      } catch (error) {
+        document.getElementById('data-container').textContent = '데이터를 불러오지 못했습니다.';
+      }
+    }
+
+    fetchKamisData();
+  </script>
+</body>
+</html>
