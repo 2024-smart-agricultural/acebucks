@@ -8,8 +8,8 @@ jobs:
   fetch_eco_price_list:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v3  # v3으로 업데이트
 
       - name: Fetch Eco Price List
         env:
@@ -20,20 +20,20 @@ jobs:
           # API 요청을 통해 JSON 파일로 저장
           curl -w "%{http_code}\n" -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o eco_price_list.json
 
-          # 상태 코드 확인
-          if [ $? -eq 0 ]; then
+          if [ "$response" -eq 200 ]; then
               echo "API 요청 성공"
           else
-              echo "API 요청 실패"
+              echo "API 요청 실패, 상태 코드: $response"
+              exit 1
           fi
           
-          # 파일이 생성되었는지 확인
           if [ -f eco_price_list.json ]; then
-              # acebucks/docs 디렉터리로 파일 이동
               mkdir -p acebucks/docs
               mv eco_price_list.json acebucks/docs/eco_price_list.json
+              echo "파일이 acebucks/docs/eco_price_list.json으로 이동되었습니다."
           else
               echo "eco_price_list.json 파일이 생성되지 않았습니다."
+              exit 1
           fi
 
           # acebucks/docs 디렉터리로 파일 이동
