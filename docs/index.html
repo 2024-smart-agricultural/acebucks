@@ -5,13 +5,14 @@
     <title>KAMIS 가격 정보</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .container { text-align: center; margin-bottom: 20px; }
+        h1 { color: #333; }
+        table { width: 80%; border-collapse: collapse; margin-top: 20px; display: none; }
         th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-        th { background-color: #f4f4f4; }
-        .container { width: 300px; margin: 20px auto; text-align: center; }
+        th { background-color: #f5f5f5; }
         .hidden { display: none; }
-        button { padding: 10px; cursor: pointer; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -23,8 +24,8 @@
         <p id="status-message">로그인하여 데이터를 확인하세요.</p>
     </div>
 
-    <h1>KAMIS Eco Price List</h1>
-    <table id="ecoPriceTable" class="hidden">
+    <h1 id="ecoPriceTitle" class="hidden">KAMIS Eco Price List</h1>
+    <table id="ecoPriceTable">
         <thead>
             <tr>
                 <th>품목명</th><th>마켓명</th><th>단위</th><th>날짜</th><th>가격</th>
@@ -49,18 +50,21 @@
             const loginButton = document.getElementById('login-btn');
             const logoutButton = document.getElementById('logout-btn');
             const ecoPriceTable = document.getElementById('ecoPriceTable');
+            const ecoPriceTitle = document.getElementById('ecoPriceTitle');
 
             if (user) {
                 statusMessage.textContent = `안녕하세요, ${user.user_metadata.full_name}님!`;
                 loginButton.classList.add('hidden');
                 logoutButton.classList.remove('hidden');
-                ecoPriceTable.classList.remove('hidden');
+                ecoPriceTable.style.display = "table";
+                ecoPriceTitle.classList.remove("hidden");
                 fetchEcoPriceList();
             } else {
                 statusMessage.textContent = '로그인하여 데이터를 확인하세요.';
                 loginButton.classList.remove('hidden');
                 logoutButton.classList.add('hidden');
-                ecoPriceTable.classList.add('hidden');
+                ecoPriceTable.style.display = "none";
+                ecoPriceTitle.classList.add("hidden");
             }
         }
 
@@ -95,3 +99,4 @@
 
 </body>
 </html>
+
