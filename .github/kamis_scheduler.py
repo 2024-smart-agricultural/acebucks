@@ -45,7 +45,7 @@ def save_kamis_data():
 
     if all_price_data:
         try:
-            with open('docs/kamis_data.json', 'r+') as file:
+            with open('docs/eco_price_list.json', 'r+') as file:
                 stored_data = json.load(file)
                 for price in all_price_data:
                     if price not in stored_data:
