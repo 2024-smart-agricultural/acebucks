@@ -1,47 +1,46 @@
-
-name: Fetch KAMIS EcoPriceList 2
+name: KAMIS Data Collection
 
 on:
   schedule:
-    - cron: '*/15 * * * *'  # 매 15분마다 실행
+    - cron: '*/10 * * * *'  # 매 10분마다 실행
 
 jobs:
-  fetch_eco_price_list:
+  collect_kamis_data:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3  # v3으로 업데이트
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Fetch Eco Price List
-        env:
-          KAMIS_KEY: ${{ secrets.KAMIS_KEY }}  # 올바른 변수 사용
-          P_CERT_ID: ${{ secrets.P_CERT_ID }}
-          
-        run: |
-          # API 요청을 통해 JSON 파일로 저장
-          response=$(curl -w "%{http_code}" -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_KEY}&p_cert_key=${KAMIS_KEY}&p_cert_id=${P_CERT_ID}&price_type=0&p_returntype=json" -o eco_price_list.json)
-          
-          if [ "$response" -eq 200 ]; then
-              echo "API 요청 성공"
-          else
-              echo "API 요청 실패, 상태 코드: $response"
-              exit 1
-          fi
-          
-          # eco_price_list.json 파일이 생성되었는지 확인
-          if [ -f eco_price_list.json ]; then
-              mkdir -p docs
-              mv eco_price_list.json docs/eco_price_list.json
-              echo "파일이 docs/eco_price_list.json으로 이동되었습니다."
-          else
-              echo "eco_price_list.json 파일이 생성되지 않았습니다."
-              exit 1
-          fi
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.x
 
-      - name: Commit and Push JSON File
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add docs/eco_price_list.json
-          git commit -m 'Update eco price list'
-          git push
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+
+    - name: Run KAMIS EcoPriceList Collection Script
+      env:
+        KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
+        P_CERT_ID: ${{ secrets.P_CERT_ID }}
+      run: |
+        echo "Running EcoPriceList data collection..."
+        python .github/kamis_scheduler.py
+
+    - name: Run KAMIS Period Product List Collection Script
+      env:
+        KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
+      run: |
+        echo "Running Period Product List data collection..."
+        python .github/period_product_list.py
+
+    - name: Commit and Push JSON Files
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add docs/eco_price_list.json docs/period_product_list.json
+        git commit -m 'Update KAMIS Eco Price List and Period Product data'
+        git push
