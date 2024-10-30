@@ -44,8 +44,8 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
        
         # Check if either JSON file has been modified
-        if [ -s docs/price_list.json ] || [ -s docs/period_product_list.json ]; then
-            git add docs/price_list.json docs/period_product_list.json
+        if [ -s docs/eco_price_list.json ] || [ -s docs/period_product_list.json ]; then
+            git add docs/eco_price_list.json docs/period_product_list.json
             git commit -m 'Update KAMIS Eco Price List and Period Product data'
             git push
         else
