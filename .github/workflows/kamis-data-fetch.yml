@@ -1,44 +1,31 @@
-name: Fetch KAMIS Data
+name: Fetch KAMIS EcoPriceList
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # 10분마다 실행
+    - cron: '55 13 * * *' # 매일 오전 10시 55분 (UTC 기준; 한국 시간 기준 오전 10시 55분에 실행)
 
 jobs:
-  collect_weather_data:
+  fetch_eco_price_list:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.x
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade --force-reinstall -r requirements.txt
-
-      - name: Run KAMIS data collection
+      - name: Fetch Eco Price List
         env:
-          KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
-        run: python .github/kamis_data_fetch.py
-
-      - name: Commit and Push JSON Data
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # ACTION_DEPLOY_KEY 대신 GITHUB_TOKEN 사용
+          KAMIS_API_KEY: ${{ secrets.KAMIS_KEY }}
         run: |
-          git config --local user.email "you@example.com"
-          git config --local user.name "Your Name"
-          git add docs/kamis_data.json
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-            exit 0
-          else
-            git pull --rebase origin source
-            git commit -m "Update KAMIS data"
-            git push origin source
-          fi
+          # API 요청을 통해 JSON 파일로 저장
+          curl -X GET "http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey=${KAMIS_API_KEY}&p_cert_key=${KAMIS_API_KEY}&p_cert_id=인증아이디&price_type=0&p_returntype=json" -o eco_price_list.json
+
+          # acebucks/docs 디렉터리로 파일 이동
+          mkdir -p acebucks/docs
+          mv eco_price_list.json acebucks/docs/eco_price_list.json
+
+      - name: Commit and Push JSON File
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add acebucks/docs/eco_price_list.json
+          git commit -m 'Add latest eco price list'
+          git push
