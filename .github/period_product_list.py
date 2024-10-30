@@ -14,12 +14,12 @@ def get_period_product_data(item_code):
 
         if response.status_code == 200:
             data = response.json()
-            price_info = {
+            product_info = {
                 "item_code": item_code,
-                "prices": data.get("data", []),
+                "data": data.get("data", []),  # 모든 데이터 가져오기
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
-            return price_info
+            return product_info
         else:
             print(f"Failed to fetch data for item_code {item_code}. Status code: {response.status_code}")
             return None
@@ -29,17 +29,17 @@ def get_period_product_data(item_code):
 
 def save_period_product_data():
     item_codes = ["tomato", "melon", "banana", "pineapple", "lemon"]
-    all_price_data = []
+    all_product_data = []
 
     for item_code in item_codes:
-        new_price_data = get_period_product_data(item_code)
-        if new_price_data:
-            all_price_data.append(new_price_data)
+        new_data = get_period_product_data(item_code)
+        if new_data:
+            all_product_data.append(new_data)
 
     # JSON 파일에 데이터를 저장
-    if all_price_data:
+    if all_product_data:
         with open('docs/period_product_list.json', 'w') as file:
-            json.dump(all_price_data, file, ensure_ascii=False, indent=4)
+            json.dump(all_product_data, file, ensure_ascii=False, indent=4)
         print("period_product_list.json created and data saved.")
     else:
         print("No period product data collected.")
