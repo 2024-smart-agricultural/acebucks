@@ -90,7 +90,7 @@
     <tbody></tbody>
 </table>
 
-<h2>KAMIS Period Product List</h2>
+<h2>KAMIS Price List</h2>
 <table id="periodProductTable" class="hidden">
     <thead>
         <tr>
@@ -203,7 +203,7 @@
 
     async function fetchPeriodProductList() {
         try {
-            const response = await fetch('period_product_list.json');
+            const response = await fetch('price_list.json');
             const data = await response.json();
             const tableBody = document.getElementById('periodProductTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = '';
@@ -217,7 +217,7 @@
                 
             document.getElementById('periodProductTable').classList.remove('hidden'); // 테이블 표시
         } catch (error) {
-            console.error("Period Product List 데이터를 가져오는 중 오류 발생:", error);
+            console.error("Price List 데이터를 가져오는 중 오류 발생:", error);
         }
     }
 
