@@ -103,6 +103,14 @@
 <script>
     netlifyIdentity.init();
 
+    // 로그인 상태가 유지되는지 확인
+    window.onload = () => {
+        const currentUser = netlifyIdentity.currentUser();
+        if (currentUser) {
+            updateUI(currentUser);
+        }
+    };
+
     // 로그인 처리
     function handleLogin() {
         const email = document.getElementById("login-email").value;
@@ -116,7 +124,7 @@
                 document.getElementById("status-message").textContent = "로그인 실패: " + error.message;
             });
     }
-
+    
     // 가입 처리
     function handleSignup() {
         const email = document.getElementById("signup-email").value;
@@ -173,7 +181,7 @@
     }
 
     // Eco Price List 데이터 가져오기
-    async function fetchEcoPriceList() {
+   async function fetchEcoPriceList() {
         try {
             const response = await fetch('eco_price_list.json');
             const data = await response.json();
