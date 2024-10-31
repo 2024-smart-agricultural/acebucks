@@ -20,23 +20,20 @@ def get_regional_item_prices():
         response.raise_for_status()
 
         if response.status_code == 200:
+            # 응답 내용 출력
+            print("Response content:", response.content)
+
             # JSON 응답 파싱
-            data = response.json()
-            if 'data' in data and data['data']:
-                filtered_data = filter_desired_items(data['data'])
-                return {
-                    "all_data": filtered_data,
-                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }
-            else:
-                print("No data found in response.")
-                return None
+            data = response.json()  # JSON 응답을 파싱
+            filtered_data = filter_desired_items(data['data'])  # JSON 구조에 맞춰 수정
+
+            return {
+                "all_data": filtered_data,
+                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
         else:
             print(f"Failed to fetch data for regional item prices. Status code: {response.status_code}")
             return None
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON response: {e}")
-        return None
     except Exception as e:
         print(f"Error occurred while fetching regional item prices: {e}")
         return None
