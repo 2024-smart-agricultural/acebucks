@@ -103,12 +103,10 @@
 <script>
     netlifyIdentity.init();
 
-    // 로그인 상태가 유지되는지 확인
+    // 페이지 로드 시 로그인 상태 확인 및 UI 설정
     window.onload = () => {
         const currentUser = netlifyIdentity.currentUser();
-        if (currentUser) {
-            updateUI(currentUser);
-        }
+        updateUI(currentUser);
     };
 
     // 로그인 처리
@@ -148,31 +146,28 @@
             });
     }
 
-    // UI 업데이트 함수
+    // 로그인 상태에 따른 UI 업데이트
     function updateUI(user) {
         const loginContainer = document.getElementById("login-container");
         const logoutButton = document.getElementById("logout-btn");
         const ecoPriceTable = document.getElementById("ecoPriceTable");
         const ecoPriceTitle = document.getElementById("ecoPriceTitle");
         const periodProductTable = document.getElementById("periodProductTable");
-        const periodPriceTitle = document.getElementById("periodPriceTitle");
-    
+
         if (user) {
             loginContainer.classList.add("hidden");
             logoutButton.style.display = "block";
-            ecoPriceTable.style.display = "table";
+            ecoPriceTable.classList.remove("hidden");
             ecoPriceTitle.classList.remove("hidden");
             periodProductTable.classList.remove("hidden");
-            periodPriceTitle.classList.remove("hidden");
             fetchEcoPriceList();
             fetchPeriodProductList();
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
-            ecoPriceTable.style.display = "none";
+            ecoPriceTable.classList.add("hidden");
             ecoPriceTitle.classList.add("hidden");
             periodProductTable.classList.add("hidden");
-            periodPriceTitle.classList.add("hidden");
         }
     }
 
