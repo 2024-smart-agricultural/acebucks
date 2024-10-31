@@ -1,8 +1,8 @@
 {
     "condition": [
         {
-            "p_startday": "2024-07-24",
-            "p_endday": "2024-11-01",
+            "p_startday": "2024-01-01",
+            "p_endday": "2024-10-31",
             "p_itemcategorycode": "100",
             "p_itemcode": "111",
             "p_kindcode": "01",
