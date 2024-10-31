@@ -27,21 +27,22 @@ def fetch_eco_price_list():
             if data.get("data"):
                 eco_price_data = data["data"]
                 print("Eco price data collected:", eco_price_data)
+                return eco_price_data
             else:
                 print("No eco price data found in response.")
+                return []
         else:
             print(f"Failed to fetch eco price list. Status code: {response.status_code}")
+            return []
     
     except Exception as e:
         print("Error occurred while fetching eco price list:", e)
         print("No eco price data collected.")
-
-fetch_eco_price_list()
+        return []
 
 def filter_desired_items(items):
     filtered_items = []
     for item in items:
-        # item의 구조에 따라 아래 코드를 수정하세요
         item_name = item  # JSON 응답에서 item의 이름을 추출하는 방법에 따라 수정
         if any(keyword in item_name for keyword in desired_keywords):
             filtered_items.append({
@@ -51,11 +52,16 @@ def filter_desired_items(items):
     return filtered_items
 
 def save_eco_price_list():
-    new_data = get_eco_price_list()
-    if new_data and new_data['all_data']:
+    # fetch_eco_price_list()로 데이터를 가져옵니다
+    raw_data = fetch_eco_price_list()
+    
+    # 필터링된 데이터를 사용하여 저장합니다
+    filtered_data = filter_desired_items(raw_data)
+    if filtered_data:
         try:
+            os.makedirs('docs', exist_ok=True)
             with open('docs/eco_price_list.json', 'w', encoding='utf-8') as file:
-                json.dump(new_data, file, ensure_ascii=False, indent=4)
+                json.dump({"all_data": filtered_data}, file, ensure_ascii=False, indent=4)
             print("eco_price_list.json created and data saved.")
             commit_and_push_changes()
         except Exception as e:
