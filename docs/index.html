@@ -241,10 +241,10 @@
     
             data.data.item.forEach(item => {
                 const row = tableBody.insertRow();
-                row.insertCell(0).textContent = item.countyname;
-                row.insertCell(1).textContent = item.marketname || 'N/A';
+                row.insertCell(0).textContent = item.productName;
+                row.insertCell(1).textContent = item.marketName || 'N/A';
                 row.insertCell(2).textContent = item.unit;
-                row.insertCell(3).textContent = item.regday;
+                row.insertCell(3).textContent = item.regDate;
                 row.insertCell(4).textContent = item.price;
             });
     
@@ -264,9 +264,9 @@
     
             data.forEach(item => {
                 const row = tableBody.insertRow();
-                row.insertCell(0).textContent = item.item_code;
-                row.insertCell(1).textContent = JSON.stringify(item.data);
-                row.insertCell(2).textContent = item.datetime;
+                row.insertCell(0).textContent = item.itemCode;
+                row.insertCell(1).textContent = JSON.stringify(item.info);
+                row.insertCell(2).textContent = item.updateDate;
             });
     
             // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
@@ -283,9 +283,11 @@
             const tableBody = document.getElementById('dailyPriceCategoryTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = ''; // 이전 데이터 비우기
     
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = JSON.stringify(data.all_data);
-            row.insertCell(1).textContent = data.datetime;
+            data.categories.forEach(category => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = category.name;
+                row.insertCell(1).textContent = category.updateDate;
+            });
     
             // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
             document.getElementById('dailyPriceCategoryTable').style.display = 'table';
@@ -301,9 +303,12 @@
             const tableBody = document.getElementById('recentRegionalPriceTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = ''; // 이전 데이터 비우기
     
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = JSON.stringify(data.all_data);
-            row.insertCell(1).textContent = data.datetime;
+            data.regionalPrices.forEach(price => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = price.regionName;
+                row.insertCell(1).textContent = price.updateDate;
+                row.insertCell(2).textContent = price.price;
+            });
     
             // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
             document.getElementById('recentRegionalPriceTable').style.display = 'table';
@@ -319,9 +324,13 @@
             const tableBody = document.getElementById('regionalItemPriceTable').getElementsByTagName('tbody')[0];
             tableBody.innerHTML = ''; // 이전 데이터 비우기
     
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = JSON.stringify(data.all_data);
-            row.insertCell(1).textContent = data.datetime;
+            data.items.forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = item.productName;
+                row.insertCell(1).textContent = item.regionName;
+                row.insertCell(2).textContent = item.updateDate;
+                row.insertCell(3).textContent = item.price;
+            });
     
             // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
             document.getElementById('regionalItemPriceTable').style.display = 'table';
@@ -329,7 +338,6 @@
             console.error("Regional Item-Specific Prices 데이터를 가져오는 중 오류 발생:", error);
         }
     }
-
 
     
     // 페이지가 로드되면 로그인 상태 확인 및 UI 설정
