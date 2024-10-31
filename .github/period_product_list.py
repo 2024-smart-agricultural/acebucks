@@ -67,8 +67,9 @@ def save_period_product_data():
 
     if all_product_data:
         try:
-            # 모든 정보를 포함한 JSON 파일을 생성하고 UTF-8 인코딩 사용
-            with open('docs/period_product_list.json', 'w', encoding='utf-8') as file:
+            # JSON 파일 경로 변경
+            file_path = 'docs/period_product_list.json'
+            with open(file_path, 'w', encoding='utf-8') as file:
                 json.dump(all_product_data, file, ensure_ascii=False, indent=4)
             print("period_product_list.json created and data saved.")
         except Exception as e:
