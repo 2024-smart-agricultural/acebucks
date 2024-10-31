@@ -19,8 +19,16 @@ def get_period_product_list():
 
         print(f"Fetching data from URL: {url}")  # 요청 URL 로그
 
+        headers = {
+            'Content-Type': 'application/json',  # 또는 'application/xml' 필요 시 추가
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
         response = requests.get(url, timeout=10)
-        response.raise_for_status()
+        print("Response status code:", response.status_code)
+        print("Response content:", response.content)  # 응답 내용 출력
+        response.raise_for_status()  # 상태 코드가 200이 아닐 경우 예외 발생
 
         if response.status_code == 200:
             # XML 응답 파싱
