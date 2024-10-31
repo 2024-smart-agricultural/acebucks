@@ -1,9 +1,8 @@
 import os
 import json
 import requests
-from datetime import datetime
-import subprocess
 import xml.etree.ElementTree as ET
+import subprocess
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -17,7 +16,8 @@ def fetch_period_product_list():
         print("Running Period Product List data collection...")
         
         # API 요청 URL
-        url = 'http://www.kamis.or.kr/service/price/xml.do?action=periodProductList&apikey=***'
+        api_key = os.getenv('KAMIS_KEY')  # 환경변수에서 API 키 가져오기
+        url = f'http://www.kamis.or.kr/service/price/xml.do?action=periodProductList&apikey={api_key}'
         print(f"Fetching data from URL: {url}")
         
         # API 요청
@@ -29,7 +29,7 @@ def fetch_period_product_list():
             print("Response content:", response.text)  # XML 응답 내용 확인
             
             # XML 데이터 파싱
-            root = ET.fromstring(response.text)
+            root = ET.fromstring(response.content)
             
             # XML에서 필요한 데이터 추출
             period_product_data = []
@@ -56,13 +56,11 @@ def fetch_period_product_list():
         print("No period product data collected.")
         return []
 
-# 호출 예제
-fetch_period_product_list()
-
 def save_period_product_list():
     new_data = fetch_period_product_list()
     if new_data:
         try:
+            os.makedirs('docs', exist_ok=True)
             with open('docs/period_product_list.json', 'w', encoding='utf-8') as file:
                 json.dump(new_data, file, ensure_ascii=False, indent=4)
             print("period_product_list.json created and data saved.")
