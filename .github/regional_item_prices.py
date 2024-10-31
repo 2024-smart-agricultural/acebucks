@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import datetime
 import subprocess
+import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -14,18 +15,17 @@ desired_keywords = [
 def get_regional_item_prices():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo&apikey={api_key}&p_returntype=xml"  # XML 요청
+        url = f"http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo&apikey={api_key}&p_returntype=xml"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            # XML 데이터 파싱
             data = response.text
             parsed_data = parse_xml_data(data)
             filtered_data = filter_desired_items(parsed_data)
             return {
-                "all_data": filtered_data,  # 필터링된 데이터 저장
+                "all_data": filtered_data,
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
         else:
@@ -36,8 +36,6 @@ def get_regional_item_prices():
         return None
 
 def parse_xml_data(data):
-    import xml.etree.ElementTree as ET
-    
     root = ET.fromstring(data)
     items = []
 
@@ -75,22 +73,22 @@ def filter_desired_items(items):
 def save_regional_item_prices():
     new_data = get_regional_item_prices()
     if new_data and new_data['all_data']:
-        with open('docs/regional_item_prices.json', 'w', encoding='utf-8') as file:
-            json.dump(new_data, file, ensure_ascii=False, indent=4)
-        print("regional_item_prices.json created and data saved.")
+        try:
+            with open('docs/recent_regional_prices.json', 'w', encoding='utf-8') as file:
+                json.dump(new_data, file, ensure_ascii=False, indent=4)
+            print("recent_regional_prices.json created and data saved.")
+            commit_and_push_changes()
+        except Exception as e:
+            print(f"Error saving JSON file: {e}")
     else:
-        print("No regional item prices data collected.")
-
-    commit_and_push_changes()
+        print("No recent regional prices data collected.")
 
 def commit_and_push_changes():
     subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
     subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
 
-    # JSON 파일을 스테이징
-    subprocess.run(["git", "add", "docs/regional_item_prices.json"])
+    subprocess.run(["git", "add", "docs/recent_regional_prices.json"])
 
-    # 변경 사항이 있을 때만 커밋
     result = subprocess.run(["git", "diff", "--cached", "--quiet"])
     if result.returncode != 0:
         subprocess.run(["git", "commit", "-m", "Update regional item prices data"])
