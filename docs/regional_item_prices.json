@@ -4,7 +4,7 @@
             {
                 "p_productclscode": "02",
                 "p_countycode": [],
-                "p_regday": "2024-10-30",
+                "p_regday": "2024-10-31",
                 "p_itemcategorycode": "100",
                 "p_itemcode": "111",
                 "p_kindcode": "EE",
@@ -19,5 +19,5 @@
             "900"
         ]
     },
-    "datetime": "2024-10-31 05:56:26"
+    "datetime": "2024-10-31 06:28:27"
 }
