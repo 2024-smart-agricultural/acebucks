@@ -21,11 +21,8 @@
   <h1>일별 농산물 가격</h1>
   <div id="daily-prices"></div>
 
-  <h1>지역별 농산물 가격</h1>
-  <div id="regional-prices"></div>
-
   <script>
-    async function fetchAndDisplayPrices(filename, containerId, tableHeaders) {
+    async function fetchAndDisplayDailyPrices(filename, containerId) {
       try {
         const response = await fetch(filename);
         const data = await response.json();
@@ -38,24 +35,35 @@
 
         // 테이블 헤더 생성
         let headerRow = document.createElement('tr');
-        tableHeaders.forEach(header => {
+        let headers = ['시작일', '종료일', '항목 코드', '품목 코드', '등급 코드', '가격 (원)'];
+        headers.forEach(header => {
           let th = document.createElement('th');
           th.textContent = header;
           headerRow.appendChild(th);
         });
         thead.appendChild(headerRow);
 
-        // 테이블 본문 생성 (데이터 채우기)
-        data.forEach(item => {
-          let row = document.createElement('tr');
-          tableHeaders.forEach(header => {
-            let td = document.createElement('td');
-            td.textContent = item[header] ? item[header] : '-';
-            row.appendChild(td);
-          });
-          tbody.appendChild(row);
+        // 데이터 생성
+        const condition = data.condition[0];
+        const price = data.data[0];
+
+        let row = document.createElement('tr');
+        let cells = [
+          condition.p_startday,
+          condition.p_endday,
+          condition.p_itemcategorycode,
+          condition.p_itemcode,
+          condition.p_productrankcode,
+          price
+        ];
+
+        cells.forEach(cell => {
+          let td = document.createElement('td');
+          td.textContent = cell;
+          row.appendChild(td);
         });
 
+        tbody.appendChild(row);
         table.appendChild(thead);
         table.appendChild(tbody);
         container.appendChild(table);
@@ -65,13 +73,67 @@
       }
     }
 
-    // 각 JSON 데이터에 맞는 테이블 헤더 설정
-    const dailyTableHeaders = ['productName', 'date', 'wholesalePrice', 'retailPrice']; // 예시 헤더들
-    const regionalTableHeaders = ['region', 'productName', 'wholesalePrice', 'retailPrice']; // 예시 헤더들
+    // 파일 경로를 사용해 데이터를 가져와 테이블로 표시
+    fetchAndDisplayDailyPrices('./daily_product_prices_2024-10-31.json', 'daily-prices');
+  </script>
+</body>
+<body>
+  <h1>지역별 농산물 가격</h1>
+  <div id="regional-prices"></div>
 
-    // 파일 경로와 테이블 헤더를 사용해 데이터를 가져와 테이블로 표시
-    fetchAndDisplayPrices('./daily_product_prices_latest.json', 'daily-prices', dailyTableHeaders);
-    fetchAndDisplayPrices('./regional_product_prices_latest.json', 'regional-prices', regionalTableHeaders);
+  <script>
+    async function fetchAndDisplayRegionalPrices(filename, containerId) {
+      try {
+        const response = await fetch(filename);
+        const data = await response.json();
+        const container = document.getElementById(containerId);
+
+        // 테이블 생성
+        let table = document.createElement('table');
+        let thead = document.createElement('thead');
+        let tbody = document.createElement('tbody');
+
+        // 테이블 헤더 생성
+        let headerRow = document.createElement('tr');
+        let headers = ['항목 코드', '품목 코드', '등급 코드', '날짜', '가격 (원)'];
+        headers.forEach(header => {
+          let th = document.createElement('th');
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        // 데이터 생성
+        const condition = data.condition[0];
+        const price = data.data[0];
+
+        let row = document.createElement('tr');
+        let cells = [
+          condition.p_itemcategorycode,
+          condition.p_itemcode,
+          condition.p_productrankcode,
+          condition.p_regday,
+          price
+        ];
+
+        cells.forEach(cell => {
+          let td = document.createElement('td');
+          td.textContent = cell;
+          row.appendChild(td);
+        });
+
+        tbody.appendChild(row);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        container.appendChild(table);
+
+      } catch (error) {
+        console.error("데이터를 가져오거나 표시하는 중 오류가 발생했습니다:", error);
+      }
+    }
+
+    // 파일 경로를 사용해 데이터를 가져와 테이블로 표시
+    fetchAndDisplayRegionalPrices('./regional_product_prices_2024-10-31.json', 'regional-prices');
   </script>
 </body>
 </html>
