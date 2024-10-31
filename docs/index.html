@@ -149,17 +149,21 @@
     netlifyIdentity.init();
 
     window.onload = () => {
-        const currentUser = netlifyIdentity.currentUser();
-        if (currentUser) {
-            updateUI(currentUser);
-            // 데이터 새로 고침 설정 (10분마다)
-            setInterval(fetchData, 10 * 60 * 1000);
+    const currentUser = netlifyIdentity.currentUser();
+    if (currentUser) {
+        updateUI(currentUser);
+    } else {
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+            const user = JSON.parse(storedUser);
+            updateUI(user);
         } else {
             netlifyIdentity.on('init', user => {
                 if (user) {
                     updateUI(user);
-                }
-            });
+                    }
+                });
+            }
         }
     };
     
@@ -169,51 +173,40 @@
         netlifyIdentity.gotrue.login(email, password)
             .then(user => {
                 updateUI(user);
+                localStorage.setItem('currentUser', JSON.stringify(user));
                 document.getElementById("status-message").textContent = `안녕하세요, ${user.email}님! 🍇`;
-                fetchData(); // 로그인 후 데이터 가져오기
             })
             .catch(error => {
                 document.getElementById("status-message").textContent = "로그인 실패: " + error.message;
             });
     }
     
-    function handleSignup() {
-        const email = document.getElementById("signup-email").value;
-        const password = document.getElementById("signup-password").value;
-        netlifyIdentity.gotrue.signup(email, password)
-            .then(() => {
-                hideSignup();
-                document.getElementById("status-message").textContent = "가입이 완료되었습니다. 로그인하세요.";
-            })
-            .catch(error => {
-                document.getElementById("signup-status").textContent = "가입 실패: " + error.message;
-            });
-    }
-
     function handleLogout() {
         netlifyIdentity.logout()
             .then(() => {
                 updateUI(null);
+                localStorage.removeItem('currentUser');
                 document.getElementById("status-message").textContent = "로그아웃 되었습니다.";
             });
     }
-
+    
     function updateUI(user) {
         const loginContainer = document.getElementById("login-container");
         const logoutButton = document.getElementById("logout-btn");
         const dataContainer = document.getElementById("data-container");
-
+    
         if (user) {
             loginContainer.classList.add("hidden");
             logoutButton.style.display = "block";
             dataContainer.classList.remove("hidden");
-            fetchData(); // 데이터 로드
+            fetchData();
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
             dataContainer.classList.add("hidden");
         }
     }
+
 
     function showSignup() {
         document.getElementById("login-container").classList.add("hidden");
