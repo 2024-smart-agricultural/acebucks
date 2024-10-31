@@ -14,11 +14,10 @@ def get_period_product_data(item_code):
 
         if response.status_code == 200:
             data = response.json()
-            # 가격 정보가 "price" 또는 다른 키에 포함된 경우 찾기
-            price_data = data.get("data", [{}])[0].get("price", "데이터 없음")  # 데이터 필드에 따라 수정
+            # JSON 응답 전체를 가져옴
             product_info = {
                 "item_code": item_code,
-                "price": price_data,
+                "all_data": data,  # 전체 데이터 저장
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return product_info
