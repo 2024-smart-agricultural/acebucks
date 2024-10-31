@@ -19,6 +19,9 @@ def get_eco_price_list():
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
+        # 응답 내용을 출력
+        print(response.text)  # 여기에서 API 응답 내용을 출력
+
         if response.status_code == 200:
             data = response.json()
             filtered_data = filter_desired_items(data.get('data', []))
