@@ -42,7 +42,7 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-       
+        
         # Check if either JSON file has been modified
         if [ -s docs/eco_price_list.json ] || [ -s docs/period_product_list.json ]; then
             git add docs/eco_price_list.json docs/period_product_list.json
@@ -50,4 +50,5 @@ jobs:
             git push
         else
             echo "No changes to commit."
+            exit 0
         fi
