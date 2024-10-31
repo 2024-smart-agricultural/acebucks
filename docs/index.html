@@ -100,6 +100,36 @@
     <tbody></tbody>
 </table>
 
+<h2>Daily Prices by Category</h2>
+<table id="dailyPriceCategoryTable" class="hidden">
+    <thead>
+        <tr>
+            <th>전체 데이터</th><th>업데이트 날짜</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<h2>Recent Regional Prices</h2>
+<table id="recentRegionalPriceTable" class="hidden">
+    <thead>
+        <tr>
+            <th>전체 데이터</th><th>업데이트 날짜</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<h2>Regional Item-Specific Prices</h2>
+<table id="regionalItemPriceTable" class="hidden">
+    <thead>
+        <tr>
+            <th>전체 데이터</th><th>업데이트 날짜</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+    
 <script>
     netlifyIdentity.init();
 
@@ -162,6 +192,9 @@
         const ecoPriceTable = document.getElementById("ecoPriceTable");
         const ecoPriceTitle = document.getElementById("ecoPriceTitle");
         const periodProductTable = document.getElementById("periodProductTable");
+        const dailyPriceCategoryTable = document.getElementById("dailyPriceCategoryTable");
+        const recentRegionalPriceTable = document.getElementById("recentRegionalPriceTable");
+        const regionalItemPriceTable = document.getElementById("regionalItemPriceTable");
 
         if (user) {
             loginContainer.classList.add("hidden");
@@ -169,14 +202,23 @@
             ecoPriceTable.classList.remove("hidden");
             ecoPriceTitle.classList.remove("hidden");
             periodProductTable.classList.remove("hidden");
+            dailyPriceCategoryTable.classList.remove("hidden");
+            recentRegionalPriceTable.classList.remove("hidden");
+            regionalItemPriceTable.classList.remove("hidden");
             fetchEcoPriceList();
             fetchPeriodProductList();
+            fetchDailyPriceCategoryList();
+            fetchRecentRegionalPriceList();
+            fetchRegionalItemPriceList();
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
             ecoPriceTable.classList.add("hidden");
             ecoPriceTitle.classList.add("hidden");
             periodProductTable.classList.add("hidden");
+            dailyPriceCategoryTable.classList.add("hidden");
+            recentRegionalPriceTable.classList.add("hidden");
+            regionalItemPriceTable.classList.add("hidden");
         }
     }
 
@@ -228,6 +270,54 @@
             });
         } catch (error) {
             console.error("Price List 데이터를 가져오는 중 오류 발생:", error);
+        }
+    }
+
+    // Daily Prices by Category 데이터 가져오기
+    async function fetchDailyPriceCategoryList() {
+        try {
+            const response = await fetch('./daily_prices_by_category.json');
+            const data = await response.json();
+            const tableBody = document.getElementById('dailyPriceCategoryTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = JSON.stringify(data.all_data);
+            row.insertCell(1).textContent = data.datetime;
+        } catch (error) {
+            console.error("Daily Prices by Category 데이터를 가져오는 중 오류 발생:", error);
+        }
+    }
+
+    // Recent Regional Prices 데이터 가져오기
+    async function fetchRecentRegionalPriceList() {
+        try {
+            const response = await fetch('./recent_regional_prices.json');
+            const data = await response.json();
+            const tableBody = document.getElementById('recentRegionalPriceTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = JSON.stringify(data.all_data);
+            row.insertCell(1).textContent = data.datetime;
+        } catch (error) {
+            console.error("Recent Regional Prices 데이터를 가져오는 중 오류 발생:", error);
+        }
+    }
+
+    // Regional Item-Specific Prices 데이터 가져오기
+    async function fetchRegionalItemPriceList() {
+        try {
+            const response = await fetch('./regional_item_prices.json');
+            const data = await response.json();
+            const tableBody = document.getElementById('regionalItemPriceTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = JSON.stringify(data.all_data);
+            row.insertCell(1).textContent = data.datetime;
+        } catch (error) {
+            console.error("Regional Item-Specific Prices 데이터를 가져오는 중 오류 발생:", error);
         }
     }
 
