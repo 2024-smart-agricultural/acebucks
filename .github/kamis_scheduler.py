@@ -20,7 +20,7 @@ def get_kamis_data(item):
         if response.status_code == 200:
             data = response.json()
             price_info = {
-                "item": item,
+                "item": item,  # 과일 이름을 저장
                 "price": data.get("price"),  # 가격 정보가 "price"에 있다고 가정
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
@@ -44,16 +44,17 @@ def save_kamis_data():
 
     if all_price_data:
         try:
-            with open('docs/eco_price_list.json', 'r+') as file:
+            with open('docs/eco_price_list.json', 'r+', encoding='utf-8') as file:
                 stored_data = json.load(file)
                 for price in all_price_data:
+                    # 중복 항목이 없는 경우만 추가
                     if price not in stored_data:
                         stored_data.append(price)
                 file.seek(0)
                 json.dump(stored_data, file, ensure_ascii=False, indent=4)
             print("KAMIS data saved to eco_price_list.json.")
         except FileNotFoundError:
-            with open('docs/eco_price_list.json', 'w') as file:
+            with open('docs/eco_price_list.json', 'w', encoding='utf-8') as file:
                 json.dump(all_price_data, file, ensure_ascii=False, indent=4)
             print("eco_price_list.json created and data saved.")
     else:
