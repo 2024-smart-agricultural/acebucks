@@ -113,18 +113,6 @@
         </thead>
         <tbody></tbody>
     </table>
-    
-    <h2>Daily Prices by Category</h2>
-    <table id="dailyPriceCategoryTable">
-        <thead>
-            <tr>
-                <th>전체 데이터</th><th>업데이트 날짜</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-    
-    <h2>Recent Regional Prices</h2>
     <table id="recentRegionalPriceTable">
         <thead>
             <tr>
@@ -224,7 +212,6 @@
         await Promise.all([
             fetchEcoPriceList(),
             fetchPeriodProductList(),
-            fetchDailyPriceCategoryList(),
             fetchRecentRegionalPriceList(),
             fetchRegionalItemPriceList()
         ]);
@@ -273,26 +260,6 @@
             document.getElementById('periodProductTable').style.display = 'table';
         } catch (error) {
             console.error("Price List 데이터를 가져오는 중 오류 발생:", error);
-        }
-    }
-    
-    async function fetchDailyPriceCategoryList() {
-        try {
-            const response = await fetch('./daily_prices_by_category.json');
-            const data = await response.json();
-            const tableBody = document.getElementById('dailyPriceCategoryTable').getElementsByTagName('tbody')[0];
-            tableBody.innerHTML = ''; // 이전 데이터 비우기
-    
-            data.categories.forEach(category => {
-                const row = tableBody.insertRow();
-                row.insertCell(0).textContent = category.name;
-                row.insertCell(1).textContent = category.updateDate;
-            });
-    
-            // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
-            document.getElementById('dailyPriceCategoryTable').style.display = 'table';
-        } catch (error) {
-            console.error("Daily Prices by Category 데이터를 가져오는 중 오류 발생:", error);
         }
     }
     
