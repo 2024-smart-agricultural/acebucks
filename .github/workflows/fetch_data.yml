@@ -2,7 +2,7 @@ name: Fetch KAMIS API Data
 
 on:
   schedule:
-    - cron: '0 * * * *' # 매시간 실행
+    - cron: '*/10 * * * *' # 매시간 실행
   workflow_dispatch:
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install -r requirements.txt
 
       - name: Fetch daily product prices
         env:
