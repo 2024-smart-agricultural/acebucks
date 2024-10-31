@@ -42,43 +42,46 @@ def parse_xml_data(data):
     items = []
 
     for item in root.findall(".//item"):
-        county_code = item.find("county_code").text
-        county_name = item.find("county_name").text
-        product_cls_code = item.find("product_cls_code").text
-        product_cls_name = item.find("product_cls_name").text
-        category_code = item.find("category_code").text
-        category_name = item.find("category_name").text
-        productno = item.find("productno").text
-        lastest_day = item.find("lastest_day").text
-        product_name = item.find("productName").text
-        item_name = item.find("item_name").text
-        unit = item.find("unit").text
-        dpr1 = item.find("dpr1").text
-        dpr2 = item.find("dpr2").text
-        dpr3 = item.find("dpr3").text
-        dpr4 = item.find("dpr4").text
-        direction = item.find("direction").text
-        value = item.find("value").text
+        try:
+            county_code = item.find("county_code").text
+            county_name = item.find("county_name").text
+            product_cls_code = item.find("product_cls_code").text
+            product_cls_name = item.find("product_cls_name").text
+            category_code = item.find("category_code").text
+            category_name = item.find("category_name").text
+            productno = item.find("productno").text
+            lastest_day = item.find("lastest_day").text
+            product_name = item.find("productName").text
+            item_name = item.find("item_name").text
+            unit = item.find("unit").text
+            dpr1 = item.find("dpr1").text
+            dpr2 = item.find("dpr2").text
+            dpr3 = item.find("dpr3").text
+            dpr4 = item.find("dpr4").text
+            direction = item.find("direction").text
+            value = item.find("value").text
 
-        items.append({
-            "county_code": county_code,
-            "county_name": county_name,
-            "product_cls_code": product_cls_code,
-            "product_cls_name": product_cls_name,
-            "category_code": category_code,
-            "category_name": category_name,
-            "productno": productno,
-            "lastest_day": lastest_day,
-            "productName": product_name,
-            "item_name": item_name,
-            "unit": unit,
-            "dpr1": dpr1,
-            "dpr2": dpr2,
-            "dpr3": dpr3,
-            "dpr4": dpr4,
-            "direction": direction,
-            "value": value,
-        })
+            items.append({
+                "county_code": county_code,
+                "county_name": county_name,
+                "product_cls_code": product_cls_code,
+                "product_cls_name": product_cls_name,
+                "category_code": category_code,
+                "category_name": category_name,
+                "productno": productno,
+                "lastest_day": lastest_day,
+                "productName": product_name,
+                "item_name": item_name,
+                "unit": unit,
+                "dpr1": dpr1,
+                "dpr2": dpr2,
+                "dpr3": dpr3,
+                "dpr4": dpr4,
+                "direction": direction,
+                "value": value,
+            })
+        except Exception as e:
+            print(f"Error parsing item data: {e}")
 
     return items
 
@@ -88,33 +91,39 @@ def filter_desired_prices(items):
         product_name = item.get('productName', '')
         if any(keyword in product_name for keyword in desired_keywords):
             filtered_items.append(item)
-    return {"item": filtered_items}  # 필터링된 품목 리스트 반환
+    return filtered_items  # 필터링된 품목 리스트 반환
 
 def save_recent_regional_prices():
     new_data = get_recent_regional_prices()
-    if new_data and new_data['all_data']['item']:
-        with open('docs/recent_regional_prices.json', 'w', encoding='utf-8') as file:
-            json.dump(new_data, file, ensure_ascii=False, indent=4)
-        print("recent_regional_prices.json created and data saved.")
+    if new_data and new_data['all_data']:
+        try:
+            with open('docs/recent_regional_prices.json', 'w', encoding='utf-8') as file:
+                json.dump(new_data, file, ensure_ascii=False, indent=4)
+            print("recent_regional_prices.json created and data saved.")
+        except Exception as e:
+            print(f"Error saving JSON file: {e}")
+    
+        commit_and_push_changes()
     else:
         print("No recent regional prices data collected.")
 
-    commit_and_push_changes()
-
 def commit_and_push_changes():
-    subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
-    subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
+    try:
+        subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
+        subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
 
-    # JSON 파일을 스테이징
-    subprocess.run(["git", "add", "docs/recent_regional_prices.json"])
+        # JSON 파일을 스테이징
+        subprocess.run(["git", "add", "docs/recent_regional_prices.json"], check=True)
 
-    # 변경 사항이 있을 때만 커밋
-    result = subprocess.run(["git", "diff", "--cached", "--quiet"])
-    if result.returncode != 0:
-        subprocess.run(["git", "commit", "-m", "Update recent regional prices data"])
-        subprocess.run(["git", "push"])
-    else:
-        print("No changes to commit.")
+        # 변경 사항이 있을 때만 커밋
+        result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
+        if result.returncode != 0:
+            subprocess.run(["git", "commit", "-m", "Update recent regional prices data"], check=True)
+            subprocess.run(["git", "push"], check=True)
+        else:
+            print("No changes to commit.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {e}")
 
 if __name__ == "__main__":
     save_recent_regional_prices()
