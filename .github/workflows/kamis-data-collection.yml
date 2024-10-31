@@ -37,13 +37,6 @@ jobs:
         echo "Running Period Product List data collection..."
         python .github/period_product_list.py
 
-    - name: Run KAMIS Daily Prices by Category Script
-      env:
-        KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
-      run: |
-        echo "Running Daily Prices by Category data collection..."
-        python .github/daily_prices_by_category.py
-
     - name: Run KAMIS Recent Regional Prices Script
       env:
         KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
@@ -68,7 +61,7 @@ jobs:
             echo "No changes to commit."
             exit 0
         else
-            git add docs/eco_price_list.json docs/period_product_list.json docs/daily_prices_by_category.json docs/recent_regional_prices.json docs/regional_item_prices.json
+            git add docs/eco_price_list.json docs/period_product_list.json docs/recent_regional_prices.json docs/regional_item_prices.json
             git commit -m 'Update KAMIS data'
             git push
         fi
