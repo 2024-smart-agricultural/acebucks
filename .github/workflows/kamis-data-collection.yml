@@ -60,13 +60,16 @@ jobs:
 
 
     - name: Commit and Push JSON File
-      continue-on-error: true
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         
         # Check if either JSON file has been modified
-        if [ -s docs/eco_price_list.json ] || [ -s docs/period_product_list.json ] || [ -s docs/daily_prices_by_category.json ] || [ -s docs/recent_regional_prices.json ] || [ -s docs/regional_item_prices.json ]; then
+        if [ -f docs/eco_price_list.json ] && [ -s docs/eco_price_list.json ] || \
+           [ -f docs/period_product_list.json ] && [ -s docs/period_product_list.json ] || \
+           [ -f docs/daily_prices_by_category.json ] && [ -s docs/daily_prices_by_category.json ] || \
+           [ -f docs/recent_regional_prices.json ] && [ -s docs/recent_regional_prices.json ] || \
+           [ -f docs/regional_item_prices.json ] && [ -s docs/regional_item_prices.json ]; then
             git add docs/eco_price_list.json docs/period_product_list.json docs/daily_prices_by_category.json docs/recent_regional_prices.json docs/regional_item_prices.json
             git commit -m 'Update KAMIS Eco Price List, Period Product data, KAMIS Daily Prices by Category, Recent Regional Prices, and Regional Item-Specific Prices data'
             git push
