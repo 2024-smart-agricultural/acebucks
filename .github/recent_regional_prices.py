@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import datetime
 import subprocess
+import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -14,17 +15,18 @@ desired_keywords = [
 def get_recent_regional_prices():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.co.kr/service/price/xml.do?action=dailySalesList&p_cert_key={api_key}&p_cert_id={api_key}&p_returntype=json"
+        url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailySalesList&p_cert_key={api_key}&p_returntype=xml"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            data = response.json()
-            # 특정 키워드가 포함된 데이터만 필터링
-            filtered_data = filter_desired_prices(data)
+            # XML 데이터 파싱
+            data = response.text
+            parsed_data = parse_xml_data(data)
+            filtered_data = filter_desired_prices(parsed_data)
             regional_info = {
-                "all_data": filtered_data,  # 필터링된 데이터 저장
+                "all_data": filtered_data,
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return regional_info
@@ -35,9 +37,54 @@ def get_recent_regional_prices():
         print(f"Error occurred while fetching recent regional prices: {e}")
         return None
 
-def filter_desired_prices(data):
+def parse_xml_data(data):
+    root = ET.fromstring(data)
+    items = []
+
+    for item in root.findall(".//item"):
+        county_code = item.find("county_code").text
+        county_name = item.find("county_name").text
+        product_cls_code = item.find("product_cls_code").text
+        product_cls_name = item.find("product_cls_name").text
+        category_code = item.find("category_code").text
+        category_name = item.find("category_name").text
+        productno = item.find("productno").text
+        lastest_day = item.find("lastest_day").text
+        product_name = item.find("productName").text
+        item_name = item.find("item_name").text
+        unit = item.find("unit").text
+        dpr1 = item.find("dpr1").text
+        dpr2 = item.find("dpr2").text
+        dpr3 = item.find("dpr3").text
+        dpr4 = item.find("dpr4").text
+        direction = item.find("direction").text
+        value = item.find("value").text
+
+        items.append({
+            "county_code": county_code,
+            "county_name": county_name,
+            "product_cls_code": product_cls_code,
+            "product_cls_name": product_cls_name,
+            "category_code": category_code,
+            "category_name": category_name,
+            "productno": productno,
+            "lastest_day": lastest_day,
+            "productName": product_name,
+            "item_name": item_name,
+            "unit": unit,
+            "dpr1": dpr1,
+            "dpr2": dpr2,
+            "dpr3": dpr3,
+            "dpr4": dpr4,
+            "direction": direction,
+            "value": value,
+        })
+
+    return items
+
+def filter_desired_prices(items):
     filtered_items = []
-    for item in data.get('data', {}).get('item', []):
+    for item in items:
         product_name = item.get('productName', '')
         if any(keyword in product_name for keyword in desired_keywords):
             filtered_items.append(item)
