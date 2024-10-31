@@ -14,15 +14,18 @@ desired_keywords = [
 def fetch_eco_price_list():
     try:
         print("Running EcoPriceList data collection...")
+
+        # 올바른 API 요청 URL 사용
+        api_key = os.getenv('KAMIS_KEY')
+        url = f"http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey={api_key}"
         
-        # API 요청
-        response = requests.get('https://api.example.com/eco_price_list')
+        response = requests.get(url)
         
         # 응답 상태 확인
         if response.status_code == 200:
             print("Response content:", response.content)
             data = response.json()
-            
+
             # JSON 데이터 처리
             if data.get("data"):
                 eco_price_data = data["data"]
