@@ -38,50 +38,54 @@ def get_recent_regional_prices():
         return None
 
 def parse_xml_data(data):
-    root = ET.fromstring(data)
     items = []
+    try:
+        root = ET.fromstring(data)
 
-    for item in root.findall(".//item"):
-        try:
-            county_code = item.find("county_code").text
-            county_name = item.find("county_name").text
-            product_cls_code = item.find("product_cls_code").text
-            product_cls_name = item.find("product_cls_name").text
-            category_code = item.find("category_code").text
-            category_name = item.find("category_name").text
-            productno = item.find("productno").text
-            lastest_day = item.find("lastest_day").text
-            product_name = item.find("productName").text
-            item_name = item.find("item_name").text
-            unit = item.find("unit").text
-            dpr1 = item.find("dpr1").text
-            dpr2 = item.find("dpr2").text
-            dpr3 = item.find("dpr3").text
-            dpr4 = item.find("dpr4").text
-            direction = item.find("direction").text
-            value = item.find("value").text
+        for item in root.findall(".//item"):
+            try:
+                county_code = item.find("county_code").text if item.find("county_code") is not None else "N/A"
+                county_name = item.find("county_name").text if item.find("county_name") is not None else "N/A"
+                product_cls_code = item.find("product_cls_code").text if item.find("product_cls_code") is not None else "N/A"
+                product_cls_name = item.find("product_cls_name").text if item.find("product_cls_name") is not None else "N/A"
+                category_code = item.find("category_code").text if item.find("category_code") is not None else "N/A"
+                category_name = item.find("category_name").text if item.find("category_name") is not None else "N/A"
+                productno = item.find("productno").text if item.find("productno") is not None else "N/A"
+                lastest_day = item.find("lastest_day").text if item.find("lastest_day") is not None else "N/A"
+                product_name = item.find("productName").text if item.find("productName") is not None else "N/A"
+                item_name = item.find("item_name").text if item.find("item_name") is not None else "N/A"
+                unit = item.find("unit").text if item.find("unit") is not None else "N/A"
+                dpr1 = item.find("dpr1").text if item.find("dpr1") is not None else "N/A"
+                dpr2 = item.find("dpr2").text if item.find("dpr2") is not None else "N/A"
+                dpr3 = item.find("dpr3").text if item.find("dpr3") is not None else "N/A"
+                dpr4 = item.find("dpr4").text if item.find("dpr4") is not None else "N/A"
+                direction = item.find("direction").text if item.find("direction") is not None else "N/A"
+                value = item.find("value").text if item.find("value") is not None else "N/A"
 
-            items.append({
-                "county_code": county_code,
-                "county_name": county_name,
-                "product_cls_code": product_cls_code,
-                "product_cls_name": product_cls_name,
-                "category_code": category_code,
-                "category_name": category_name,
-                "productno": productno,
-                "lastest_day": lastest_day,
-                "productName": product_name,
-                "item_name": item_name,
-                "unit": unit,
-                "dpr1": dpr1,
-                "dpr2": dpr2,
-                "dpr3": dpr3,
-                "dpr4": dpr4,
-                "direction": direction,
-                "value": value,
-            })
-        except Exception as e:
-            print(f"Error parsing item data: {e}")
+                items.append({
+                    "county_code": county_code,
+                    "county_name": county_name,
+                    "product_cls_code": product_cls_code,
+                    "product_cls_name": product_cls_name,
+                    "category_code": category_code,
+                    "category_name": category_name,
+                    "productno": productno,
+                    "lastest_day": lastest_day,
+                    "productName": product_name,
+                    "item_name": item_name,
+                    "unit": unit,
+                    "dpr1": dpr1,
+                    "dpr2": dpr2,
+                    "dpr3": dpr3,
+                    "dpr4": dpr4,
+                    "direction": direction,
+                    "value": value,
+                })
+            except Exception as e:
+                print(f"Error parsing item data: {e}")
+
+    except ET.ParseError as e:
+        print(f"Error parsing XML data: {e}")
 
     return items
 
@@ -100,10 +104,9 @@ def save_recent_regional_prices():
             with open('docs/recent_regional_prices.json', 'w', encoding='utf-8') as file:
                 json.dump(new_data, file, ensure_ascii=False, indent=4)
             print("recent_regional_prices.json created and data saved.")
+            commit_and_push_changes()
         except Exception as e:
             print(f"Error saving JSON file: {e}")
-    
-        commit_and_push_changes()
     else:
         print("No recent regional prices data collected.")
 
