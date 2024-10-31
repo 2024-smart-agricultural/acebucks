@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>농산물 가격 모니터링</title>
+</head>
+<body>
+  <h1>일별 농산물 가격</h1>
+  <div id="daily-prices"></div>
+
+  <h1>지역별 농산물 가격</h1>
+  <div id="regional-prices"></div>
+
+  <script>
+    async function fetchAndDisplayPrices(filename, containerId) {
+      try {
+        const response = await fetch(filename);
+        const data = await response.json();
+        const container = document.getElementById(containerId);
+
+        // 데이터 표시
+        container.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (error) {
+        console.error("데이터를 가져오거나 표시하는 중 오류가 발생했습니다:", error);
+      }
+    }
+
+    // /docs 디렉토리에 저장된 파일 이름으로 업데이트 필요
+    fetchAndDisplayPrices('./daily_product_prices_latest.json', 'daily-prices');
+    fetchAndDisplayPrices('./regional_product_prices_latest.json', 'regional-prices');
+  </script>
+</body>
+</html>
