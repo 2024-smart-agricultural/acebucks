@@ -17,13 +17,16 @@ def get_daily_prices_by_category():
         api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList&apikey={api_key}"
 
-        response = requests.get(url, timeout=10)
+        # 필요한 파라미터 추가
+        params = {
+            "p_regday": datetime.now().strftime("%Y%m%d"),  # 오늘 날짜
+            "p_category_code": "100",  # 원하는 카테고리 코드
+        }
+
+        response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            # 응답 내용 출력
-            print("Response content:", response.content.decode('utf-8'))
-
             # XML 응답 파싱
             root = ET.fromstring(response.content)
             items = root.findall('.//item')  # XML 구조에 따라 조정 필요
