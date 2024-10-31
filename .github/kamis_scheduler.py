@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 import subprocess
 import time
+import xml.etree.ElementTree as ET
 
 def get_kamis_data(item):
     try:
@@ -19,6 +20,15 @@ def get_kamis_data(item):
 
         if response.status_code == 200:
             try:
+                # XML 응답 처리
+                if response.headers['Content-Type'] == 'application/xml':
+                    root = ET.fromstring(response.text)
+                    error_code = root.find('.//error_code').text
+                    if error_code != '0':
+                        print(f"Error in API response for {item}: {error_code}")
+                        return None
+                
+                # JSON 처리
                 data = response.json()
                 if "price" in data:  # "price" 키가 있는지 확인
                     price_info = {
