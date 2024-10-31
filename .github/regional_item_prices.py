@@ -14,20 +14,20 @@ desired_keywords = [
 def get_regional_item_prices():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo&apikey={api_key}&p_returntype=json"
+        url = f"http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo&apikey={api_key}&p_returntype=xml"  # XML 요청
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            data = response.json()
-            # 특정 키워드가 포함된 데이터만 필터링
-            filtered_data = filter_desired_items(data)
-            item_info = {
+            # XML 데이터 파싱
+            data = response.text
+            parsed_data = parse_xml_data(data)
+            filtered_data = filter_desired_items(parsed_data)
+            return {
                 "all_data": filtered_data,  # 필터링된 데이터 저장
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
-            return item_info
         else:
             print(f"Failed to fetch data for regional item prices. Status code: {response.status_code}")
             return None
@@ -35,17 +35,46 @@ def get_regional_item_prices():
         print(f"Error occurred while fetching regional item prices: {e}")
         return None
 
-def filter_desired_items(data):
+def parse_xml_data(data):
+    import xml.etree.ElementTree as ET
+    
+    root = ET.fromstring(data)
+    items = []
+
+    for item in root.findall(".//item"):
+        countyname = item.find("countyname").text
+        itemname = item.find("itemname").text
+        kindname = item.find("kindname").text
+        unit = item.find("unit").text
+        price = item.find("price").text
+        weekprice = item.find("weekprice").text
+        monthprice = item.find("monthprice").text
+        yearprice = item.find("yearprice").text
+        
+        items.append({
+            "countyname": countyname,
+            "itemname": itemname,
+            "kindname": kindname,
+            "unit": unit,
+            "price": price,
+            "weekprice": weekprice,
+            "monthprice": monthprice,
+            "yearprice": yearprice
+        })
+
+    return items
+
+def filter_desired_items(items):
     filtered_items = []
-    for item in data.get('data', {}).get('item', []):
-        product_name = item.get('productName', '')
-        if any(keyword in product_name for keyword in desired_keywords):
+    for item in items:
+        item_name = item.get('itemname', '')
+        if any(keyword in item_name for keyword in desired_keywords):
             filtered_items.append(item)
-    return {"item": filtered_items}  # 필터링된 품목 리스트 반환
+    return filtered_items
 
 def save_regional_item_prices():
     new_data = get_regional_item_prices()
-    if new_data and new_data['all_data']['item']:
+    if new_data and new_data['all_data']:
         with open('docs/regional_item_prices.json', 'w', encoding='utf-8') as file:
             json.dump(new_data, file, ensure_ascii=False, indent=4)
         print("regional_item_prices.json created and data saved.")
