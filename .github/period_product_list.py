@@ -4,6 +4,13 @@ import requests
 from datetime import datetime
 import subprocess
 
+# 원하는 키워드 리스트
+desired_keywords = [
+    '고구마', '수박', '토마토', '딸기', '당근', '멜론', '사과',
+    '배', '복숭아', '포도', '감귤', '단감', '바나나', '파인애플',
+    '오렌지', '자몽', '레몬', '체리', '망고', '블루베리'
+]
+
 def get_all_item_codes():
     try:
         api_key = os.getenv('KAMIS_KEY')
@@ -54,7 +61,7 @@ def save_period_product_data():
 
     for item_code in item_codes:
         new_data = get_period_product_data(item_code)
-        if new_data:
+        if new_data and is_desired_product(new_data):
             all_product_data.append(new_data)
 
     if all_product_data:
@@ -66,6 +73,14 @@ def save_period_product_data():
         print("No period product data collected.")
 
     commit_and_push_changes()
+
+def is_desired_product(product_info):
+    # product_info에서 원하는 키워드가 포함되어 있는지 체크
+    for item in product_info['all_data']['data']['item']:
+        product_name = item.get('productName', '')
+        if any(keyword in product_name for keyword in desired_keywords):
+            return True
+    return False
 
 def commit_and_push_changes():
     subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
@@ -82,4 +97,5 @@ def commit_and_push_changes():
     else:
         print("No changes to commit.")
 
-save_period_product_data()
+if __name__ == "__main__":
+    save_period_product_data()
