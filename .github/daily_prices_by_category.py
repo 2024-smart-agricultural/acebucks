@@ -3,7 +3,6 @@ import json
 import requests
 from datetime import datetime
 import subprocess
-import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -15,16 +14,15 @@ desired_keywords = [
 def get_daily_prices_by_category():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList&apikey={api_key}&p_returntype=xml"
+        url = f"http://www.kamis.or.kr/service/price/json.do?action=dailyPriceByCategoryList&apikey={api_key}"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            # XML 데이터 파싱
-            data = response.text
-            parsed_data = parse_xml_data(data)
-            filtered_data = filter_data_by_keywords(parsed_data)
+            # JSON 데이터 파싱
+            data = response.json()
+            filtered_data = filter_data_by_keywords(data.get('data', {}).get('item', []))
             category_info = {
                 "all_data": filtered_data,  # 필터링된 데이터 저장
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -36,34 +34,6 @@ def get_daily_prices_by_category():
     except Exception as e:
         print(f"Error occurred while fetching daily prices by category: {e}")
         return None
-
-def parse_xml_data(data):
-    items = []
-    try:
-        root = ET.fromstring(data)
-
-        for item in root.findall(".//item"):
-            try:
-                item_name = item.find("itemname").text if item.find("itemname") is not None else "N/A"
-                kind_name = item.find("kindname").text if item.find("kindname") is not None else "N/A"
-                county_name = item.find("countyname").text if item.find("countyname") is not None else "N/A"
-                reg_day = item.find("regday").text if item.find("regday") is not None else "N/A"
-                price = item.find("price").text if item.find("price") is not None else "N/A"
-
-                items.append({
-                    "itemname": item_name,
-                    "kindname": kind_name,
-                    "countyname": county_name,
-                    "regday": reg_day,
-                    "price": price
-                })
-            except Exception as e:
-                print(f"Error parsing item data: {e}")
-
-    except ET.ParseError as e:
-        print(f"Error parsing XML data: {e}")
-
-    return items
 
 def filter_data_by_keywords(items):
     filtered_items = [
