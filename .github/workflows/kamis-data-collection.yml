@@ -37,6 +37,28 @@ jobs:
         echo "Running Period Product List data collection..."
         python .github/period_product_list.py
 
+    - name: Run KAMIS Daily Prices by Category Script
+      env:
+        KAMIS_KEY: '${{ secrets.KAMIS_KEY }}'
+      run: |
+        echo "Running Daily Prices by Category data collection..."
+        python .github/daily_prices_by_category.py
+
+    - name: Run KAMIS Recent Regional Prices Script
+      env:
+        KAMIS_KEY: '${{ secrets.KAMIS_KEY }}'
+      run: |
+        echo "Running Recent Regional Prices data collection..."
+        python .github/recent_regional_prices.py
+
+    - name: Run KAMIS Regional Item-Specific Prices Script
+      env:
+        KAMIS_KEY: '${{ secrets.KAMIS_KEY }}'
+      run: |
+        echo "Running Regional Item-Specific Prices data collection..."
+        python .github/regional_item_prices.py
+
+
     - name: Commit and Push JSON File
       continue-on-error: true
       run: |
@@ -44,9 +66,9 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         
         # Check if either JSON file has been modified
-        if [ -s docs/eco_price_list.json ] || [ -s docs/period_product_list.json ]; then
-            git add docs/eco_price_list.json docs/period_product_list.json
-            git commit -m 'Update KAMIS Eco Price List and Period Product data'
+        if [ -s docs/eco_price_list.json ] || [ -s docs/period_product_list.json ] || [ -s docs/daily_prices_by_category.json ] || [ -s docs/recent_regional_prices.json ] || [ -s docs/regional_item_prices.json ]; then
+            git add docs/eco_price_list.json docs/period_product_list.json docs/daily_prices_by_category.json docs/recent_regional_prices.json docs/regional_item_prices.json
+            git commit -m 'Update KAMIS Eco Price List, Period Product data, KAMIS Daily Prices by Category, Recent Regional Prices, and Regional Item-Specific Prices data'
             git push
         else
             echo "No changes to commit."
