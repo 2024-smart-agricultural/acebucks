@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import datetime
 import subprocess
+import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -14,17 +15,17 @@ desired_keywords = [
 def get_eco_price_list():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/json.do?action=EcoPriceList&apikey={api_key}"
+        url = f"http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey={api_key}"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
-        # 응답 내용을 출력
-        print(response.text)  # 여기에서 API 응답 내용을 출력
-
         if response.status_code == 200:
-            data = response.json()
-            filtered_data = filter_desired_items(data.get('data', []))
+            # XML 응답 파싱
+            root = ET.fromstring(response.content)
+            items = root.findall('.//item')
+            filtered_data = filter_desired_items(items)
+
             return {
                 "all_data": filtered_data,
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -39,9 +40,12 @@ def get_eco_price_list():
 def filter_desired_items(items):
     filtered_items = []
     for item in items:
-        item_name = item.get('itemname', '')
+        item_name = item.find('itemname').text if item.find('itemname') is not None else ''
         if any(keyword in item_name for keyword in desired_keywords):
-            filtered_items.append(item)
+            filtered_items.append({
+                "itemname": item_name,
+                # 필요한 다른 데이터 추가
+            })
     return filtered_items
 
 def save_eco_price_list():
