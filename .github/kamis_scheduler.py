@@ -15,23 +15,28 @@ def get_kamis_data(item):
         response.raise_for_status()
         end_time = time.time()
 
-        print(f"Item: {item}, Time Taken: {end_time - start_time} seconds")
+        print(f"Item: {item}, Time Taken: {end_time - start_time:.2f} seconds")
 
         if response.status_code == 200:
-            data = response.json()
-            price_info = {
-                "item": item,  # 과일 이름을 저장
-                "price": data.get("price"),  # 가격 정보가 "price"에 있다고 가정
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            print(f"Data for {item} successfully retrieved.")
-            return price_info
+            try:
+                data = response.json()
+                if "price" in data:  # "price" 키가 있는지 확인
+                    price_info = {
+                        "item": item,  # 과일 이름을 저장
+                        "price": data["price"],  # 가격 정보
+                        "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    }
+                    print(f"Data for {item} successfully retrieved.")
+                    return price_info
+                else:
+                    print(f"No price information found for {item}. Response: {data}")
+            except json.JSONDecodeError:
+                print(f"Error decoding JSON for {item}: {response.text}")
         else:
             print(f"Failed to fetch data for {item}. Status code: {response.status_code}")
-            return None
     except Exception as e:
         print(f"Error occurred while fetching KAMIS data for {item}: {e}")
-        return None
+    return None
 
 def save_kamis_data():
     item_list = ["tomato", "melon", "banana", "pineapple", "lemon"]
@@ -44,37 +49,44 @@ def save_kamis_data():
 
     if all_price_data:
         try:
-            with open('docs/eco_price_list.json', 'r+', encoding='utf-8') as file:
-                stored_data = json.load(file)
-                for price in all_price_data:
-                    # 중복 항목이 없는 경우만 추가
-                    if price not in stored_data:
-                        stored_data.append(price)
-                file.seek(0)
-                json.dump(stored_data, file, ensure_ascii=False, indent=4)
-            print("KAMIS data saved to eco_price_list.json.")
-        except FileNotFoundError:
-            with open('docs/eco_price_list.json', 'w', encoding='utf-8') as file:
-                json.dump(all_price_data, file, ensure_ascii=False, indent=4)
-            print("eco_price_list.json created and data saved.")
+            # 파일이 존재할 경우 읽고 없을 경우 새로 생성
+            if os.path.exists('docs/eco_price_list.json'):
+                with open('docs/eco_price_list.json', 'r+', encoding='utf-8') as file:
+                    stored_data = json.load(file)
+                    for price in all_price_data:
+                        if price not in stored_data:  # 중복 항목 체크
+                            stored_data.append(price)
+                    file.seek(0)
+                    json.dump(stored_data, file, ensure_ascii=False, indent=4)
+                print("KAMIS data saved to eco_price_list.json.")
+            else:
+                with open('docs/eco_price_list.json', 'w', encoding='utf-8') as file:
+                    json.dump(all_price_data, file, ensure_ascii=False, indent=4)
+                print("eco_price_list.json created and data saved.")
+        except Exception as e:
+            print(f"Error saving eco_price_list.json: {e}")
     else:
         print("No KAMIS data collected.")
 
     commit_and_push_changes()
 
 def commit_and_push_changes():
-    subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
-    subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
-    
-    # JSON 파일을 스테이징
-    subprocess.run(["git", "add", "docs/eco_price_list.json", "docs/period_product_list.json"])
-    
-    # 변경 사항이 있을 때만 커밋
-    result = subprocess.run(["git", "diff", "--cached", "--quiet"])
-    if result.returncode != 0:
-        subprocess.run(["git", "commit", "-m", "Update KAMIS data"])
-        subprocess.run(["git", "push"])
-    else:
-        print("No changes to commit.")
+    try:
+        subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
+        subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
+        
+        # JSON 파일을 스테이징
+        subprocess.run(["git", "add", "docs/eco_price_list.json"], check=True)
+        
+        # 변경 사항이 있을 때만 커밋
+        result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
+        if result.returncode != 0:
+            subprocess.run(["git", "commit", "-m", "Update KAMIS data"], check=True)
+            subprocess.run(["git", "push"], check=True)
+        else:
+            print("No changes to commit.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {e}")
 
-save_kamis_data()
+if __name__ == "__main__":
+    save_kamis_data()
