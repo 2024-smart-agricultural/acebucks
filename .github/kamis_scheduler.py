@@ -11,28 +11,32 @@ desired_keywords = [
     '오렌지', '자몽', '레몬', '체리', '망고', '블루베리'
 ]
 
-def get_eco_price_list():
+def fetch_eco_price_list():
     try:
-        api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey={api_key}"
-
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-
-        print("Response content:", response.content)  # 응답 내용 출력
-
-        # XML 응답 파싱
-        root = ET.fromstring(response.content)
-        items = root.findall('.//item')  # XML 구조에 따라 조정 필요
-        filtered_data = filter_desired_items(items)
-
-        return {
-            "all_data": filtered_data,
-            "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
+        print("Running EcoPriceList data collection...")
+        
+        # API 요청
+        response = requests.get('https://api.example.com/eco_price_list')
+        
+        # 응답 상태 확인
+        if response.status_code == 200:
+            print("Response content:", response.content)
+            data = response.json()
+            
+            # JSON 데이터 처리
+            if data.get("data"):
+                eco_price_data = data["data"]
+                print("Eco price data collected:", eco_price_data)
+            else:
+                print("No eco price data found in response.")
+        else:
+            print(f"Failed to fetch eco price list. Status code: {response.status_code}")
+    
     except Exception as e:
-        print(f"Error occurred while fetching eco price list: {e}")
-        return None
+        print("Error occurred while fetching eco price list:", e)
+        print("No eco price data collected.")
+
+fetch_eco_price_list()
 
 def filter_desired_items(items):
     filtered_items = []
