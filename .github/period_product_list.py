@@ -17,6 +17,8 @@ def get_period_product_list():
         api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=PeriodProductList&apikey={api_key}"
 
+        print(f"Fetching data from URL: {url}")  # 요청 URL 로그
+
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
