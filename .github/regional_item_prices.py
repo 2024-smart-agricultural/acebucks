@@ -36,29 +36,32 @@ def get_regional_item_prices():
         return None
 
 def parse_xml_data(data):
-    root = ET.fromstring(data)
     items = []
+    try:
+        root = ET.fromstring(data)
 
-    for item in root.findall(".//item"):
-        countyname = item.find("countyname").text
-        itemname = item.find("itemname").text
-        kindname = item.find("kindname").text
-        unit = item.find("unit").text
-        price = item.find("price").text
-        weekprice = item.find("weekprice").text
-        monthprice = item.find("monthprice").text
-        yearprice = item.find("yearprice").text
-        
-        items.append({
-            "countyname": countyname,
-            "itemname": itemname,
-            "kindname": kindname,
-            "unit": unit,
-            "price": price,
-            "weekprice": weekprice,
-            "monthprice": monthprice,
-            "yearprice": yearprice
-        })
+        for item in root.findall(".//item"):
+            countyname = item.find("countyname").text if item.find("countyname") is not None else "N/A"
+            itemname = item.find("itemname").text if item.find("itemname") is not None else "N/A"
+            kindname = item.find("kindname").text if item.find("kindname") is not None else "N/A"
+            unit = item.find("unit").text if item.find("unit") is not None else "N/A"
+            price = item.find("price").text if item.find("price") is not None else "N/A"
+            weekprice = item.find("weekprice").text if item.find("weekprice") is not None else "N/A"
+            monthprice = item.find("monthprice").text if item.find("monthprice") is not None else "N/A"
+            yearprice = item.find("yearprice").text if item.find("yearprice") is not None else "N/A"
+
+            items.append({
+                "countyname": countyname,
+                "itemname": itemname,
+                "kindname": kindname,
+                "unit": unit,
+                "price": price,
+                "weekprice": weekprice,
+                "monthprice": monthprice,
+                "yearprice": yearprice
+            })
+    except ET.ParseError as e:
+        print(f"Error parsing XML data: {e}")
 
     return items
 
@@ -84,17 +87,20 @@ def save_regional_item_prices():
         print("No recent regional prices data collected.")
 
 def commit_and_push_changes():
-    subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
-    subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
+    try:
+        subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
+        subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
 
-    subprocess.run(["git", "add", "docs/recent_regional_prices.json"])
+        subprocess.run(["git", "add", "docs/recent_regional_prices.json"], check=True)
 
-    result = subprocess.run(["git", "diff", "--cached", "--quiet"])
-    if result.returncode != 0:
-        subprocess.run(["git", "commit", "-m", "Update regional item prices data"])
-        subprocess.run(["git", "push"])
-    else:
-        print("No changes to commit.")
+        result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
+        if result.returncode != 0:
+            subprocess.run(["git", "commit", "-m", "Update regional item prices data"], check=True)
+            subprocess.run(["git", "push"], check=True)
+        else:
+            print("No changes to commit.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {e}")
 
 if __name__ == "__main__":
     save_regional_item_prices()
