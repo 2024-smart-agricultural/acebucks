@@ -80,55 +80,57 @@
     <p id="signup-status">가입 정보를 입력하세요.</p>
 </div>
 
-<h2 id="ecoPriceTitle" class="hidden">KAMIS Eco Price List</h2>
-<table id="ecoPriceTable" class="hidden">
-    <thead>
-        <tr>
-            <th>품목명</th><th>마켓명</th><th>단위</th><th>날짜</th><th>가격</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<h2>KAMIS Price List</h2>
-<table id="periodProductTable" class="hidden">
-    <thead>
-        <tr>
-            <th>품목 코드</th><th>정보</th><th>업데이트 날짜</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<h2>Daily Prices by Category</h2>
-<table id="dailyPriceCategoryTable" class="hidden">
-    <thead>
-        <tr>
-            <th>전체 데이터</th><th>업데이트 날짜</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<h2>Recent Regional Prices</h2>
-<table id="recentRegionalPriceTable" class="hidden">
-    <thead>
-        <tr>
-            <th>전체 데이터</th><th>업데이트 날짜</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<h2>Regional Item-Specific Prices</h2>
-<table id="regionalItemPriceTable" class="hidden">
-    <thead>
-        <tr>
-            <th>전체 데이터</th><th>업데이트 날짜</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+<div id="data-container" class="hidden">
+    <h2 id="ecoPriceTitle">KAMIS Eco Price List</h2>
+    <table id="ecoPriceTable">
+        <thead>
+            <tr>
+                <th>품목명</th><th>마켓명</th><th>단위</th><th>날짜</th><th>가격</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
+    <h2>KAMIS Price List</h2>
+    <table id="periodProductTable">
+        <thead>
+            <tr>
+                <th>품목 코드</th><th>정보</th><th>업데이트 날짜</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
+    <h2>Daily Prices by Category</h2>
+    <table id="dailyPriceCategoryTable">
+        <thead>
+            <tr>
+                <th>전체 데이터</th><th>업데이트 날짜</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
+    <h2>Recent Regional Prices</h2>
+    <table id="recentRegionalPriceTable">
+        <thead>
+            <tr>
+                <th>전체 데이터</th><th>업데이트 날짜</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    
+    <h2>Regional Item-Specific Prices</h2>
+    <table id="regionalItemPriceTable">
+        <thead>
+            <tr>
+                <th>전체 데이터</th><th>업데이트 날짜</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
     
 <script>
     netlifyIdentity.init();
@@ -148,7 +150,6 @@
         }
     };
 
-    // 로그인 처리
     function handleLogin() {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
@@ -162,7 +163,6 @@
             });
     }
     
-    // 가입 처리
     function handleSignup() {
         const email = document.getElementById("signup-email").value;
         const password = document.getElementById("signup-password").value;
@@ -176,7 +176,6 @@
             });
     }
 
-    // 로그아웃 처리
     function handleLogout() {
         netlifyIdentity.logout()
             .then(() => {
@@ -185,26 +184,15 @@
             });
     }
 
-    // 로그인 상태에 따른 UI 업데이트
     function updateUI(user) {
         const loginContainer = document.getElementById("login-container");
         const logoutButton = document.getElementById("logout-btn");
-        const ecoPriceTable = document.getElementById("ecoPriceTable");
-        const ecoPriceTitle = document.getElementById("ecoPriceTitle");
-        const periodProductTable = document.getElementById("periodProductTable");
-        const dailyPriceCategoryTable = document.getElementById("dailyPriceCategoryTable");
-        const recentRegionalPriceTable = document.getElementById("recentRegionalPriceTable");
-        const regionalItemPriceTable = document.getElementById("regionalItemPriceTable");
+        const dataContainer = document.getElementById("data-container");
 
         if (user) {
             loginContainer.classList.add("hidden");
             logoutButton.style.display = "block";
-            ecoPriceTable.classList.remove("hidden");
-            ecoPriceTitle.classList.remove("hidden");
-            periodProductTable.classList.remove("hidden");
-            dailyPriceCategoryTable.classList.remove("hidden");
-            recentRegionalPriceTable.classList.remove("hidden");
-            regionalItemPriceTable.classList.remove("hidden");
+            dataContainer.classList.remove("hidden");
             fetchEcoPriceList();
             fetchPeriodProductList();
             fetchDailyPriceCategoryList();
@@ -213,12 +201,7 @@
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
-            ecoPriceTable.classList.add("hidden");
-            ecoPriceTitle.classList.add("hidden");
-            periodProductTable.classList.add("hidden");
-            dailyPriceCategoryTable.classList.add("hidden");
-            recentRegionalPriceTable.classList.add("hidden");
-            regionalItemPriceTable.classList.add("hidden");
+            dataContainer.classList.add("hidden");
         }
     }
 
@@ -288,7 +271,7 @@
             console.error("Daily Prices by Category 데이터를 가져오는 중 오류 발생:", error);
         }
     }
-
+    
     // Recent Regional Prices 데이터 가져오기
     async function fetchRecentRegionalPriceList() {
         try {
@@ -320,7 +303,7 @@
             console.error("Regional Item-Specific Prices 데이터를 가져오는 중 오류 발생:", error);
         }
     }
-
+    
     // 페이지가 로드되면 로그인 상태 확인 및 UI 설정
     window.onload = () => {
         const currentUser = netlifyIdentity.currentUser();
