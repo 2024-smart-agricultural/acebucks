@@ -18,10 +18,10 @@ def fetch_daily_county_list():
     params = {
         'p_product_cls_code': '02',  # 농산물 코드
         'p_category_code': '100',    # 카테고리 코드 설정
-        'p_regday': '2024-10-31',    # 날짜 설정
+        'p_regday': today,    # 날짜 설정
         'p_convert_kg_yn': 'N',      # kg 변환 여부
-        'p_cert_key': 'YOUR_API_KEY',  # API 인증 키 입력
-        'p_cert_id': 'YOUR_CERT_ID',   # 인증 ID 입력
+        'p_cert_key': secrets.API_KEY,  # API 인증 키
+        'p_cert_id': secrets.CERT_ID     # 인증 ID
         'p_returntype': 'json'         # JSON으로 응답 요청
     }
     
