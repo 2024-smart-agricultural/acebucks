@@ -11,95 +11,59 @@ desired_keywords = [
     '오렌지', '자몽', '레몬', '체리', '망고', '블루베리'
 ]
 
-def get_all_item_codes():
+def get_period_product_list():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=ItemCodeList&apikey={api_key}&p_returntype=json"
-        
+        url = f"http://www.kamis.or.kr/service/price/json.do?action=PeriodProductList&apikey={api_key}"
+
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
             data = response.json()
-            # API에서 모든 item_code 추출
-            item_codes = [item['item_code'] for item in data.get('data', {}).get('item', [])]
-            return item_codes
-        else:
-            print(f"Failed to fetch item codes. Status code: {response.status_code}")
-            return []
-    except Exception as e:
-        print(f"Error occurred while fetching item codes: {e}")
-        return []
-
-def get_period_product_data(item_code):
-    try:
-        api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=periodProductList&apikey={api_key}&p_itemcode={item_code}&p_returntype=json"
-        
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-
-        if response.status_code == 200:
-            data = response.json()
-            # 전체 데이터를 저장하고 날짜 형식을 년-월-일로 설정
-            product_info = {
-                "item_code": item_code,
-                "all_data": data,
+            filtered_data = filter_desired_items(data.get('data', []))
+            return {
+                "all_data": filtered_data,
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
-            return product_info
         else:
-            print(f"Failed to fetch data for item_code {item_code}. Status code: {response.status_code}")
+            print(f"Failed to fetch data for period product list. Status code: {response.status_code}")
             return None
     except Exception as e:
-        print(f"Error occurred while fetching period product data for item_code {item_code}: {e}")
+        print(f"Error occurred while fetching period product list: {e}")
         return None
 
-def save_period_product_data():
-    item_codes = get_all_item_codes()  # 모든 품목 코드를 불러옴
-    all_product_data = []
+def filter_desired_items(items):
+    filtered_items = []
+    for item in items:
+        item_name = item.get('itemname', '')
+        if any(keyword in item_name for keyword in desired_keywords):
+            filtered_items.append(item)
+    return filtered_items
 
-    for item_code in item_codes:
-        new_data = get_period_product_data(item_code)
-        if new_data and is_desired_product(new_data):
-            all_product_data.append(new_data)
-            print(f"Collected data for: {item_code}")
-
-    if all_product_data:
+def save_period_product_list():
+    new_data = get_period_product_list()
+    if new_data and new_data['all_data']:
         try:
-            # JSON 파일 경로 변경
-            file_path = 'docs/period_product_list.json'
-            with open(file_path, 'w', encoding='utf-8') as file:
-                json.dump(all_product_data, file, ensure_ascii=False, indent=4)
+            with open('docs/period_product_list.json', 'w', encoding='utf-8') as file:
+                json.dump(new_data, file, ensure_ascii=False, indent=4)
             print("period_product_list.json created and data saved.")
+            commit_and_push_changes()
         except Exception as e:
-            print(f"Error saving period_product_list.json: {e}")
+            print(f"Error saving JSON file: {e}")
     else:
         print("No period product data collected.")
-
-    commit_and_push_changes()
-
-def is_desired_product(product_info):
-    # product_info에서 원하는 키워드가 포함되어 있는지 체크
-    if 'data' in product_info['all_data']:
-        for item in product_info['all_data']['data']:
-            product_name = item.get('productName', '')
-            if any(keyword in product_name for keyword in desired_keywords):
-                return True
-    return False
 
 def commit_and_push_changes():
     try:
         subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
-        
-        # JSON 파일을 스테이징
+
         subprocess.run(["git", "add", "docs/period_product_list.json"], check=True)
-        
-        # 변경 사항이 있을 때만 커밋
+
         result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
         if result.returncode != 0:
-            subprocess.run(["git", "commit", "-m", "Update KAMIS data"], check=True)
+            subprocess.run(["git", "commit", "-m", "Update period product list data"], check=True)
             subprocess.run(["git", "push"], check=True)
         else:
             print("No changes to commit.")
@@ -107,4 +71,4 @@ def commit_and_push_changes():
         print(f"Git command failed: {e}")
 
 if __name__ == "__main__":
-    save_period_product_data()
+    save_period_product_list()
