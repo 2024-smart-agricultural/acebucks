@@ -3,7 +3,6 @@ import json
 import requests
 from datetime import datetime
 import subprocess
-import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -15,29 +14,29 @@ desired_keywords = [
 def get_regional_item_prices():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo&apikey={api_key}"
+        url = f"http://www.kamis.or.kr/service/price/json.do?action=ItemInfo&apikey={api_key}"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
-        print(response.text)
 
         if response.status_code == 200:
-            # XML 응답 파싱
-            try:
-                root = ET.fromstring(response.content)
-            except ET.ParseError as e:
-                print(f"Error parsing XML: {e}")
+            # JSON 응답 파싱
+            data = response.json()
+            if 'data' in data and data['data']:
+                filtered_data = filter_desired_items(data['data'])
+                return {
+                    "all_data": filtered_data,
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+            else:
+                print("No data found in response.")
                 return None
-            items = root.findall('.//item')  # XML 구조에 따라 조정 필요
-            filtered_data = filter_desired_items(items)
-
-            return {
-                "all_data": filtered_data,
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
         else:
             print(f"Failed to fetch data for regional item prices. Status code: {response.status_code}")
             return None
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON response: {e}")
+        return None
     except Exception as e:
         print(f"Error occurred while fetching regional item prices: {e}")
         return None
@@ -45,7 +44,7 @@ def get_regional_item_prices():
 def filter_desired_items(items):
     filtered_items = []
     for item in items:
-        item_name = item.find('itemname').text if item.find('itemname') is not None else ''
+        item_name = item.get('itemname', '')
         if any(keyword in item_name for keyword in desired_keywords):
             filtered_items.append({
                 "itemname": item_name,
