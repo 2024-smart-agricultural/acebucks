@@ -5,13 +5,14 @@ import os
 from datetime import datetime
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
+KAMIS_ID = os.getenv("P_CERT_ID")
 URL = "https://www.kamis.or.kr/service/price/xml.do"  # 실제 KAMIS 일별 가격 정보 API 엔드포인트로 변경
 
 def fetch_daily_prices():
     params = {
         'action': 'periodProductList',
         'p_cert_key': KAMIS_KEY,
-        'p_cert_id': 'your_id',
+        'p_cert_id': KAMIS_ID,
         'p_returntype': 'json',
         # 필요한 추가 파라미터
     }
