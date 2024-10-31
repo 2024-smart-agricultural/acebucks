@@ -17,15 +17,24 @@ def get_recent_regional_prices():
         api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailySalesList&apikey={api_key}"
 
-        response = requests.get(url, timeout=10)
+        # 필요한 파라미터 추가
+        params = {
+            "p_regday": datetime.now().strftime("%Y%m%d"),  # 오늘 날짜
+            # 필요한 다른 파라미터 추가
+        }
+
+        response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            # 응답 내용 출력
-            print("Response content:", response.content.decode('utf-8'))
-
             # XML 응답 파싱
             root = ET.fromstring(response.content)
+            result_code = root.find('.//result_code').text if root.find('.//result_code') is not None else ''
+
+            if result_code == "900":
+                print("No data available for the requested date.")
+                return None
+
             items = root.findall('.//item')  # XML 구조에 따라 조정 필요
             filtered_data = filter_desired_prices(items)
 
@@ -39,6 +48,7 @@ def get_recent_regional_prices():
     except Exception as e:
         print(f"Error occurred while fetching recent regional prices: {e}")
         return None
+
 
 def filter_desired_prices(items):
     filtered_items = []
