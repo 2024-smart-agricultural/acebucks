@@ -230,10 +230,10 @@
             fetchRecentRegionalPriceList(),
             fetchRegionalItemPriceList()
         ]);
-    
+        
         dataContainer.classList.remove("hidden"); // 데이터 로드 후에 보여줌
     }
-
+    
     async function fetchEcoPriceList() {
         try {
             const response = await fetch('./eco_price_list.json');
@@ -249,6 +249,9 @@
                 row.insertCell(3).textContent = item.regday;
                 row.insertCell(4).textContent = item.price;
             });
+    
+            // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
+            document.getElementById('ecoPriceTable').style.display = 'table';
         } catch (error) {
             console.error("Eco Price List 데이터를 가져오는 중 오류 발생:", error);
         }
@@ -267,6 +270,9 @@
                 row.insertCell(1).textContent = JSON.stringify(item.data);
                 row.insertCell(2).textContent = item.datetime;
             });
+    
+            // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
+            document.getElementById('periodProductTable').style.display = 'table';
         } catch (error) {
             console.error("Price List 데이터를 가져오는 중 오류 발생:", error);
         }
@@ -282,6 +288,9 @@
             const row = tableBody.insertRow();
             row.insertCell(0).textContent = JSON.stringify(data.all_data);
             row.insertCell(1).textContent = data.datetime;
+    
+            // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
+            document.getElementById('dailyPriceCategoryTable').style.display = 'table';
         } catch (error) {
             console.error("Daily Prices by Category 데이터를 가져오는 중 오류 발생:", error);
         }
@@ -297,6 +306,9 @@
             const row = tableBody.insertRow();
             row.insertCell(0).textContent = JSON.stringify(data.all_data);
             row.insertCell(1).textContent = data.datetime;
+    
+            // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
+            document.getElementById('recentRegionalPriceTable').style.display = 'table';
         } catch (error) {
             console.error("Recent Regional Prices 데이터를 가져오는 중 오류 발생:", error);
         }
@@ -312,10 +324,14 @@
             const row = tableBody.insertRow();
             row.insertCell(0).textContent = JSON.stringify(data.all_data);
             row.insertCell(1).textContent = data.datetime;
+    
+            // 테이블이 성공적으로 업데이트된 후에는 JSON 형식으로 보이지 않도록 설정
+            document.getElementById('regionalItemPriceTable').style.display = 'table';
         } catch (error) {
             console.error("Regional Item-Specific Prices 데이터를 가져오는 중 오류 발생:", error);
         }
     }
+
 
     
     // 페이지가 로드되면 로그인 상태 확인 및 UI 설정
