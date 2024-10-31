@@ -26,12 +26,12 @@ jobs:
       - name: Fetch daily product prices
         env:
           KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
-        run: python scripts/fetch_daily_product_prices.py
+        run: python .github/fetch_daily_product_prices.py
 
       - name: Fetch regional product prices
         env:
           KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
-        run: python scripts/fetch_regional_product_prices.py
+        run: python .github/fetch_regional_product_prices.py
 
       - name: Commit and push JSON data
         env:
