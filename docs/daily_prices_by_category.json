@@ -1,0 +1,20 @@
+{
+    "all_data": {
+        "condition": [
+            {
+                "p_product_cls_code": "02",
+                "p_country_code": [],
+                "p_regday": [],
+                "p_convert_kg_yn": "N",
+                "p_category_code": "100",
+                "p_cert_key": [],
+                "p_cert_id": [],
+                "p_returntype": "json"
+            }
+        ],
+        "data": [
+            "200"
+        ]
+    },
+    "datetime": "2024-10-31 01:47:02"
+}
