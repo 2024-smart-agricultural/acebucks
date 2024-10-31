@@ -23,7 +23,13 @@ def get_daily_prices_by_category():
             "p_category_code": "100",  # 원하는 카테고리 코드
         }
 
-        response = requests.get(url, params=params, timeout=10)
+        headers = {
+            'Content-Type': 'application/xml',  # 필요한 경우
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        print("Response status code:", response.status_code)
+        print("Response content:", response.content)  # 응답 내용 출력
         response.raise_for_status()
 
         if response.status_code == 200:
