@@ -1,0 +1,42 @@
+name: Fetch KAMIS API Data
+
+on:
+  schedule:
+    - cron: '0 * * * *' # 매시간 실행
+  workflow_dispatch:
+
+jobs:
+  fetch-kamis-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: source
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Fetch daily product prices
+        env:
+          KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
+        run: python scripts/fetch_daily_product_prices.py
+
+      - name: Fetch regional product prices
+        env:
+          KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
+        run: python scripts/fetch_regional_product_prices.py
+
+      - name: Commit and push JSON data
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "actions@github.com"
+          git add docs/*.json
+          git commit -m "Update KAMIS data" || echo "No changes to commit"
+          git push origin source
