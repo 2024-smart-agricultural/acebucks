@@ -20,17 +20,23 @@ def get_daily_prices_by_category():
         response.raise_for_status()
 
         if response.status_code == 200:
-            # JSON 데이터 파싱
             data = response.json()
-            filtered_data = filter_data_by_keywords(data.get('data', {}).get('item', []))
-            category_info = {
-                "all_data": filtered_data,  # 필터링된 데이터 저장
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            return category_info
+            if 'data' in data and data['data']:
+                filtered_data = filter_data_by_keywords(data['data'])
+                category_info = {
+                    "all_data": filtered_data,
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+                return category_info
+            else:
+                print("No data found in response.")
+                return None
         else:
             print(f"Failed to fetch data for daily prices by category. Status code: {response.status_code}")
             return None
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON response: {e}")
+        return None
     except Exception as e:
         print(f"Error occurred while fetching daily prices by category: {e}")
         return None
@@ -40,7 +46,7 @@ def filter_data_by_keywords(items):
         item for item in items
         if any(keyword in item['itemname'] for keyword in desired_keywords)
     ]
-    return filtered_items  # 필터링된 품목 리스트 반환
+    return filtered_items
 
 def save_daily_prices_by_category():
     new_data = get_daily_prices_by_category()
@@ -60,10 +66,8 @@ def commit_and_push_changes():
         subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
 
-        # JSON 파일을 스테이징
         subprocess.run(["git", "add", "docs/daily_prices_by_category.json"], check=True)
 
-        # 변경 사항이 있을 때만 커밋
         result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
         if result.returncode != 0:
             subprocess.run(["git", "commit", "-m", "Update daily prices by category data"], check=True)
