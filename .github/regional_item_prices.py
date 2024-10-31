@@ -18,8 +18,8 @@ def fetch_item_info(item_code):
     params = {
         'p_item_code': item_code,  # 아이템 코드
         'p_returntype': 'json',     # JSON으로 응답 요청
-        'p_cert_key': secrets.API_KEY,  # API 인증 키
-        'p_cert_id': secrets.CERT_ID     # 인증 ID
+        'p_cert_key': os.getenv('KAMIS_KEY'),  # API 인증 키
+        'p_cert_id': os.getenv('P_CERT_ID')     # 인증 ID
     }
     
     try:
