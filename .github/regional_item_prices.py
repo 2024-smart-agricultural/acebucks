@@ -20,9 +20,6 @@ def get_regional_item_prices():
         response.raise_for_status()
 
         if response.status_code == 200:
-            # 응답 내용 출력
-            print("Response content:", response.content)
-
             # JSON 응답 파싱
             data = response.json()  # JSON 응답을 파싱
             filtered_data = filter_desired_items(data['data'])  # JSON 구조에 맞춰 수정
@@ -41,7 +38,7 @@ def get_regional_item_prices():
 def filter_desired_items(items):
     filtered_items = []
     for item in items:
-        item_name = item.get('itemname', '')
+        item_name = item.get('itemname', '')  # JSON에서 itemname 가져오기
         if any(keyword in item_name for keyword in desired_keywords):
             filtered_items.append({
                 "itemname": item_name,
