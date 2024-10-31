@@ -4,6 +4,13 @@ import requests
 from datetime import datetime
 import subprocess
 
+# 원하는 키워드 리스트
+desired_keywords = [
+    '고구마', '수박', '토마토', '딸기', '당근', '멜론', '사과',
+    '배', '복숭아', '포도', '감귤', '단감', '바나나', '파인애플',
+    '오렌지', '자몽', '레몬', '체리', '망고', '블루베리'
+]
+
 def get_daily_prices_by_category():
     try:
         api_key = os.getenv('KAMIS_KEY')
@@ -14,8 +21,9 @@ def get_daily_prices_by_category():
 
         if response.status_code == 200:
             data = response.json()
+            filtered_data = filter_data_by_keywords(data)
             category_info = {
-                "all_data": data,  # 전체 데이터 저장
+                "all_data": filtered_data,  # 필터링된 데이터 저장
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return category_info
@@ -25,6 +33,15 @@ def get_daily_prices_by_category():
     except Exception as e:
         print(f"Error occurred while fetching daily prices by category: {e}")
         return None
+
+def filter_data_by_keywords(data):
+    # 특정 키워드가 포함된 데이터 필터링
+    filtered_items = [
+        item for item in data['data']['item']
+        if any(keyword in item['productName'] for keyword in desired_keywords)
+    ]
+    data['data']['item'] = filtered_items
+    return data
 
 def save_daily_prices_by_category():
     new_data = get_daily_prices_by_category()
