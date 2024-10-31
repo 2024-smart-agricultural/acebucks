@@ -6,7 +6,7 @@ from datetime import datetime
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
-URL = "https://www.kamis.or.kr/service/price/xml.do"  # 실제 KAMIS 지역별 가격 정보 API 엔드포인트로 변경
+URL = "http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo"  # 실제 KAMIS 지역별 가격 정보 API 엔드포인트로 변경
 
 def fetch_regional_prices():
     params = {
