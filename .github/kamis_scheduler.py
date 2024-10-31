@@ -3,7 +3,6 @@ import json
 import requests
 from datetime import datetime
 import subprocess
-import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -17,21 +16,22 @@ def get_eco_price_list():
         api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey={api_key}"
 
+        print(f"Fetching data from URL: {url}")  # 요청 URL 로그
+
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            # XML 응답 파싱
-            root = ET.fromstring(response.content)
-            items = root.findall('.//item')
-            filtered_data = filter_desired_items(items)
+            # JSON 응답 파싱
+            data = response.json()
+            items = filter_desired_items(data['data'])
 
             return {
-                "all_data": filtered_data,
+                "all_data": items,
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
         else:
-            print(f"Failed to fetch data for eco price list. Status code: {response.status_code}")
+            print(f"Failed to fetch eco price list. Status code: {response.status_code}")
             return None
     except Exception as e:
         print(f"Error occurred while fetching eco price list: {e}")
@@ -40,7 +40,8 @@ def get_eco_price_list():
 def filter_desired_items(items):
     filtered_items = []
     for item in items:
-        item_name = item.find('itemname').text if item.find('itemname') is not None else ''
+        # item의 구조에 따라 아래 코드를 수정하세요
+        item_name = item  # JSON 응답에서 item의 이름을 추출하는 방법에 따라 수정
         if any(keyword in item_name for keyword in desired_keywords):
             filtered_items.append({
                 "itemname": item_name,
@@ -59,7 +60,7 @@ def save_eco_price_list():
         except Exception as e:
             print(f"Error saving JSON file: {e}")
     else:
-        print("No KAMIS data collected.")
+        print("No eco price data collected.")
 
 def commit_and_push_changes():
     try:
