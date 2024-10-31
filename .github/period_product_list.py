@@ -1,22 +1,24 @@
-import subprocess
 import os
 import json
 import requests
 from datetime import datetime
+import subprocess
 
 def get_period_product_data(item_code):
     try:
         api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=periodProductList&apikey={api_key}&p_itemcode={item_code}&p_returntype=json"
-
+        
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
             data = response.json()
+            # 가격 정보가 "price" 또는 다른 키에 포함된 경우 찾기
+            price_data = data.get("data", [{}])[0].get("price", "데이터 없음")  # 데이터 필드에 따라 수정
             product_info = {
                 "item_code": item_code,
-                "data": data.get("data", []),  # 모든 데이터 가져오기
+                "price": price_data,
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return product_info
@@ -28,7 +30,7 @@ def get_period_product_data(item_code):
         return None
 
 def save_period_product_data():
-    item_codes = ["tomato", "melon", "banana", "pineapple", "lemon"]
+    item_codes = ["tomato", "melon", "banana", "pineapple", "lemon"]  # 실제 코드로 변경
     all_product_data = []
 
     for item_code in item_codes:
@@ -36,9 +38,8 @@ def save_period_product_data():
         if new_data:
             all_product_data.append(new_data)
 
-    # JSON 파일에 데이터를 저장
     if all_product_data:
-        with open('docs/period_product_list.json', 'w') as file:
+        with open('docs/period_product_list.json', 'w', encoding='utf-8') as file:
             json.dump(all_product_data, file, ensure_ascii=False, indent=4)
         print("period_product_list.json created and data saved.")
     else:
