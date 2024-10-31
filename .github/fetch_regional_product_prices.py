@@ -6,7 +6,7 @@ from datetime import datetime
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
-URL = "http://www.kamis.or.kr/service/price/xml.do"
+URL = "http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo"
 
 def fetch_regional_prices():
     params = {
@@ -15,7 +15,7 @@ def fetch_regional_prices():
         'p_cert_id': KAMIS_ID,
         'p_returntype': 'json',
         'p_startday': '2024-01-01',  # 시작일을 설정 (예: 연초부터 현재까지)
-        'p_endday': datetime.now().strftime("%Y-%m-%d'),  # 종료일 설정 (오늘)
+        'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 종료일 설정 (오늘)
         'p_itemcategorycode': '',  # 모든 품목 카테고리 가져오기
         'p_itemcode': '',  # 모든 품목 코드 가져오기
         'p_kindcode': '',  # 품종 코드도 설정하지 않음 (모든 것 가져오기)
