@@ -16,23 +16,20 @@ def get_eco_price_list():
         api_key = os.getenv('KAMIS_KEY')
         url = f"http://www.kamis.or.kr/service/price/xml.do?action=EcoPriceList&apikey={api_key}"
 
-        print(f"Fetching data from URL: {url}")  # 요청 URL 로그
-
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
-        if response.status_code == 200:
-            # JSON 응답 파싱
-            data = response.json()
-            items = filter_desired_items(data['data'])
+        print("Response content:", response.content)  # 응답 내용 출력
 
-            return {
-                "all_data": items,
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-        else:
-            print(f"Failed to fetch eco price list. Status code: {response.status_code}")
-            return None
+        # XML 응답 파싱
+        root = ET.fromstring(response.content)
+        items = root.findall('.//item')  # XML 구조에 따라 조정 필요
+        filtered_data = filter_desired_items(items)
+
+        return {
+            "all_data": filtered_data,
+            "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
     except Exception as e:
         print(f"Error occurred while fetching eco price list: {e}")
         return None
