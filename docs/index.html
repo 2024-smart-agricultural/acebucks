@@ -56,6 +56,19 @@
             border: 1px solid #a8e6cf;
             border-radius: 5px;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #a8e6cf;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #ffcc80;
+        }
     </style>
 </head>
 <body>
@@ -135,13 +148,13 @@
 <script>
     netlifyIdentity.init();
 
-    // 페이지 로드 시 로그인 상태 확인 및 UI 설정
     window.onload = () => {
         const currentUser = netlifyIdentity.currentUser();
         if (currentUser) {
             updateUI(currentUser);
+            // 데이터 새로 고침 설정 (10분마다)
+            setInterval(fetchData, 10 * 60 * 1000);
         } else {
-            // Netlify Identity가 새로고침 시 세션을 복원
             netlifyIdentity.on('init', user => {
                 if (user) {
                     updateUI(user);
@@ -149,7 +162,7 @@
             });
         }
     };
-
+    
     function handleLogin() {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
@@ -157,6 +170,7 @@
             .then(user => {
                 updateUI(user);
                 document.getElementById("status-message").textContent = `안녕하세요, ${user.email}님! 🍇`;
+                fetchData(); // 로그인 후 데이터 가져오기
             })
             .catch(error => {
                 document.getElementById("status-message").textContent = "로그인 실패: " + error.message;
@@ -193,11 +207,7 @@
             loginContainer.classList.add("hidden");
             logoutButton.style.display = "block";
             dataContainer.classList.remove("hidden");
-            fetchEcoPriceList();
-            fetchPeriodProductList();
-            fetchDailyPriceCategoryList();
-            fetchRecentRegionalPriceList();
-            fetchRegionalItemPriceList();
+            fetchData(); // 데이터 로드
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
@@ -205,7 +215,6 @@
         }
     }
 
-    // 가입 창 표시 및 숨김
     function showSignup() {
         document.getElementById("login-container").classList.add("hidden");
         document.getElementById("signup-container").classList.remove("hidden");
@@ -245,6 +254,7 @@
         }
     }
 
+
     async function fetchPeriodProductList() {
         try {
             const response = await fetch('./period_product_list.json');
@@ -255,7 +265,7 @@
             data.forEach(item => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).textContent = item.item_code;
-                row.insertCell(1).textContent = JSON.stringify(item.data);
+                row.insertCell(1).textContent = JSON.stringify(item.all_data.data || 'N/A');
                 row.insertCell(2).textContent = item.datetime;
             });
         } catch (error) {
