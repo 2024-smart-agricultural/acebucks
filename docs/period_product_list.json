@@ -1,37 +1,122 @@
 [
     {
         "item_code": "tomato",
-        "data": [
-            "900"
-        ],
-        "datetime": "2024-10-30 23:57:20"
+        "all_data": {
+            "condition": [
+                {
+                    "p_startday": "2024-07-23",
+                    "p_endday": "2024-10-31",
+                    "p_itemcategorycode": "100",
+                    "p_itemcode": "tomato",
+                    "p_kindcode": [],
+                    "p_productrankcode": [],
+                    "p_countycode": [],
+                    "p_convert_kg_yn": "N",
+                    "p_key": [],
+                    "p_id": [],
+                    "p_returntype": "json"
+                }
+            ],
+            "data": [
+                "900"
+            ]
+        },
+        "datetime": "2024-10-31 01:46:51"
     },
     {
         "item_code": "melon",
-        "data": [
-            "900"
-        ],
-        "datetime": "2024-10-30 23:57:21"
+        "all_data": {
+            "condition": [
+                {
+                    "p_startday": "2024-07-23",
+                    "p_endday": "2024-10-31",
+                    "p_itemcategorycode": "100",
+                    "p_itemcode": "melon",
+                    "p_kindcode": [],
+                    "p_productrankcode": [],
+                    "p_countycode": [],
+                    "p_convert_kg_yn": "N",
+                    "p_key": [],
+                    "p_id": [],
+                    "p_returntype": "json"
+                }
+            ],
+            "data": [
+                "900"
+            ]
+        },
+        "datetime": "2024-10-31 01:46:54"
     },
     {
         "item_code": "banana",
-        "data": [
-            "900"
-        ],
-        "datetime": "2024-10-30 23:57:22"
+        "all_data": {
+            "condition": [
+                {
+                    "p_startday": "2024-07-23",
+                    "p_endday": "2024-10-31",
+                    "p_itemcategorycode": "100",
+                    "p_itemcode": "banana",
+                    "p_kindcode": [],
+                    "p_productrankcode": [],
+                    "p_countycode": [],
+                    "p_convert_kg_yn": "N",
+                    "p_key": [],
+                    "p_id": [],
+                    "p_returntype": "json"
+                }
+            ],
+            "data": [
+                "900"
+            ]
+        },
+        "datetime": "2024-10-31 01:46:56"
     },
     {
         "item_code": "pineapple",
-        "data": [
-            "900"
-        ],
-        "datetime": "2024-10-30 23:57:22"
+        "all_data": {
+            "condition": [
+                {
+                    "p_startday": "2024-07-23",
+                    "p_endday": "2024-10-31",
+                    "p_itemcategorycode": "100",
+                    "p_itemcode": "pineapple",
+                    "p_kindcode": [],
+                    "p_productrankcode": [],
+                    "p_countycode": [],
+                    "p_convert_kg_yn": "N",
+                    "p_key": [],
+                    "p_id": [],
+                    "p_returntype": "json"
+                }
+            ],
+            "data": [
+                "900"
+            ]
+        },
+        "datetime": "2024-10-31 01:46:58"
     },
     {
         "item_code": "lemon",
-        "data": [
-            "900"
-        ],
-        "datetime": "2024-10-30 23:57:23"
+        "all_data": {
+            "condition": [
+                {
+                    "p_startday": "2024-07-23",
+                    "p_endday": "2024-10-31",
+                    "p_itemcategorycode": "100",
+                    "p_itemcode": "lemon",
+                    "p_kindcode": [],
+                    "p_productrankcode": [],
+                    "p_countycode": [],
+                    "p_convert_kg_yn": "N",
+                    "p_key": [],
+                    "p_id": [],
+                    "p_returntype": "json"
+                }
+            ],
+            "data": [
+                "900"
+            ]
+        },
+        "datetime": "2024-10-31 01:47:00"
     }
 ]
