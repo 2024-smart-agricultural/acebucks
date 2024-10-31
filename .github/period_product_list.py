@@ -22,7 +22,7 @@ def get_all_item_codes():
         if response.status_code == 200:
             data = response.json()
             # API에서 모든 item_code 추출
-            item_codes = [item['item_code'] for item in data['data']['item']]
+            item_codes = [item['item_code'] for item in data.get('data', {}).get('item', [])]
             return item_codes
         else:
             print(f"Failed to fetch item codes. Status code: {response.status_code}")
@@ -66,10 +66,13 @@ def save_period_product_data():
             print(f"Collected data for: {item_code}")
 
     if all_product_data:
-        # 모든 정보를 포함한 JSON 파일을 생성하고 UTF-8 인코딩 사용
-        with open('docs/period_product_list.json', 'w', encoding='utf-8') as file:
-            json.dump(all_product_data, file, ensure_ascii=False, indent=4)
-        print("period_product_list.json created and data saved.")
+        try:
+            # 모든 정보를 포함한 JSON 파일을 생성하고 UTF-8 인코딩 사용
+            with open('docs/period_product_list.json', 'w', encoding='utf-8') as file:
+                json.dump(all_product_data, file, ensure_ascii=False, indent=4)
+            print("period_product_list.json created and data saved.")
+        except Exception as e:
+            print(f"Error saving period_product_list.json: {e}")
     else:
         print("No period product data collected.")
 
@@ -85,19 +88,22 @@ def is_desired_product(product_info):
     return False
 
 def commit_and_push_changes():
-    subprocess.run(["git", "config", "--global", "user.email", "you@example.com"])
-    subprocess.run(["git", "config", "--global", "user.name", "Your Name"])
-    
-    # JSON 파일을 스테이징
-    subprocess.run(["git", "add", "docs/period_product_list.json"])
-    
-    # 변경 사항이 있을 때만 커밋
-    result = subprocess.run(["git", "diff", "--cached", "--quiet"])
-    if result.returncode != 0:
-        subprocess.run(["git", "commit", "-m", "Update KAMIS data"])
-        subprocess.run(["git", "push"])
-    else:
-        print("No changes to commit.")
+    try:
+        subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
+        subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
+        
+        # JSON 파일을 스테이징
+        subprocess.run(["git", "add", "docs/period_product_list.json"], check=True)
+        
+        # 변경 사항이 있을 때만 커밋
+        result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
+        if result.returncode != 0:
+            subprocess.run(["git", "commit", "-m", "Update KAMIS data"], check=True)
+            subprocess.run(["git", "push"], check=True)
+        else:
+            print("No changes to commit.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {e}")
 
 if __name__ == "__main__":
     save_period_product_data()
