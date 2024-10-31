@@ -14,34 +14,38 @@ desired_keywords = [
 def get_recent_regional_prices():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/json.do?action=dailySalesList&p_cert_key={api_key}"
+        url = f"http://www.kamis.or.kr/service/price/json.do?action=dailySalesList&apikey={api_key}"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            # JSON 데이터 파싱
             data = response.json()
-            filtered_data = filter_desired_prices(data.get('data', {}).get('item', []))
-            regional_info = {
-                "all_data": filtered_data,
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            return regional_info
+            if 'data' in data and data['data']:
+                filtered_data = filter_desired_prices(data['data'])
+                return {
+                    "all_data": filtered_data,
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+            else:
+                print("No data found in response.")
+                return None
         else:
             print(f"Failed to fetch data for recent regional prices. Status code: {response.status_code}")
             return None
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON response: {e}")
+        return None
     except Exception as e:
         print(f"Error occurred while fetching recent regional prices: {e}")
         return None
 
 def filter_desired_prices(items):
-    filtered_items = []
-    for item in items:
-        product_name = item.get('productName', '')
-        if any(keyword in product_name for keyword in desired_keywords):
-            filtered_items.append(item)
-    return filtered_items  # 필터링된 품목 리스트 반환
+    filtered_items = [
+        item for item in items
+        if any(keyword in item.get('productName', '') for keyword in desired_keywords)
+    ]
+    return filtered_items
 
 def save_recent_regional_prices():
     new_data = get_recent_regional_prices()
@@ -61,10 +65,8 @@ def commit_and_push_changes():
         subprocess.run(["git", "config", "--global", "user.email", "you@example.com"], check=True)
         subprocess.run(["git", "config", "--global", "user.name", "Your Name"], check=True)
 
-        # JSON 파일을 스테이징
         subprocess.run(["git", "add", "docs/recent_regional_prices.json"], check=True)
 
-        # 변경 사항이 있을 때만 커밋
         result = subprocess.run(["git", "diff", "--cached", "--quiet"], check=True)
         if result.returncode != 0:
             subprocess.run(["git", "commit", "-m", "Update recent regional prices data"], check=True)
