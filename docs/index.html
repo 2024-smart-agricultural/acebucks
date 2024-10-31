@@ -106,7 +106,16 @@
     // 페이지 로드 시 로그인 상태 확인 및 UI 설정
     window.onload = () => {
         const currentUser = netlifyIdentity.currentUser();
-        updateUI(currentUser);
+        if (currentUser) {
+            updateUI(currentUser);
+        } else {
+            // Netlify Identity가 새로고침 시 세션을 복원
+            netlifyIdentity.on('init', user => {
+                if (user) {
+                    updateUI(user);
+                }
+            });
+        }
     };
 
     // 로그인 처리
@@ -214,7 +223,7 @@
             data.forEach(item => {
                 const row = tableBody.insertRow();
                 row.insertCell(0).textContent = item.item_code;
-                row.insertCell(1).textContent = JSON.stringify(item.data);  // 모든 정보를 JSON 형식으로 표시
+                row.insertCell(1).textContent = JSON.stringify(item.data);
                 row.insertCell(2).textContent = item.datetime;
             });
         } catch (error) {
