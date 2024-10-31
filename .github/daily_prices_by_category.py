@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import datetime
 import subprocess
+import xml.etree.ElementTree as ET
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -14,14 +15,16 @@ desired_keywords = [
 def get_daily_prices_by_category():
     try:
         api_key = os.getenv('KAMIS_KEY')
-        url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList&apikey={api_key}&p_returntype=json"
+        url = f"http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList&apikey={api_key}&p_returntype=xml"
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
         if response.status_code == 200:
-            data = response.json()
-            filtered_data = filter_data_by_keywords(data)
+            # XML 데이터 파싱
+            data = response.text
+            parsed_data = parse_xml_data(data)
+            filtered_data = filter_data_by_keywords(parsed_data)
             category_info = {
                 "all_data": filtered_data,  # 필터링된 데이터 저장
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -34,14 +37,33 @@ def get_daily_prices_by_category():
         print(f"Error occurred while fetching daily prices by category: {e}")
         return None
 
-def filter_data_by_keywords(data):
-    # 특정 키워드가 포함된 데이터 필터링
+def parse_xml_data(data):
+    root = ET.fromstring(data)
+    items = []
+
+    for item in root.findall(".//item"):
+        item_name = item.find("itemname").text
+        kind_name = item.find("kindname").text
+        county_name = item.find("countyname").text
+        reg_day = item.find("regday").text
+        price = item.find("price").text
+
+        items.append({
+            "itemname": item_name,
+            "kindname": kind_name,
+            "countyname": county_name,
+            "regday": reg_day,
+            "price": price
+        })
+
+    return items
+
+def filter_data_by_keywords(items):
     filtered_items = [
-        item for item in data['data']['item']
-        if any(keyword in item['productName'] for keyword in desired_keywords)
+        item for item in items
+        if any(keyword in item['itemname'] for keyword in desired_keywords)
     ]
-    data['data']['item'] = filtered_items
-    return data
+    return filtered_items  # 필터링된 품목 리스트 반환
 
 def save_daily_prices_by_category():
     new_data = get_daily_prices_by_category()
