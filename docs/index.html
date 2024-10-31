@@ -216,7 +216,15 @@
         document.getElementById("login-container").classList.remove("hidden");
     }
 
-    // Eco Price List 데이터 가져오기
+    // 데이터 가져오기 함수
+    async function fetchData() {
+        await fetchEcoPriceList();
+        await fetchPeriodProductList();
+        await fetchDailyPriceCategoryList();
+        await fetchRecentRegionalPriceList();
+        await fetchRegionalItemPriceList();
+    }
+
     async function fetchEcoPriceList() {
         try {
             const response = await fetch('./eco_price_list.json');
@@ -237,7 +245,6 @@
         }
     }
 
-    // Period Product List 데이터 가져오기
     async function fetchPeriodProductList() {
         try {
             const response = await fetch('./period_product_list.json');
@@ -256,7 +263,6 @@
         }
     }
 
-    // Daily Prices by Category 데이터 가져오기
     async function fetchDailyPriceCategoryList() {
         try {
             const response = await fetch('./daily_prices_by_category.json');
@@ -271,8 +277,7 @@
             console.error("Daily Prices by Category 데이터를 가져오는 중 오류 발생:", error);
         }
     }
-    
-    // Recent Regional Prices 데이터 가져오기
+
     async function fetchRecentRegionalPriceList() {
         try {
             const response = await fetch('./recent_regional_prices.json');
@@ -288,7 +293,6 @@
         }
     }
 
-    // Regional Item-Specific Prices 데이터 가져오기
     async function fetchRegionalItemPriceList() {
         try {
             const response = await fetch('./regional_item_prices.json');
