@@ -19,10 +19,15 @@ def get_regional_item_prices():
 
         response = requests.get(url, timeout=10)
         response.raise_for_status()
+        print(response.text)
 
         if response.status_code == 200:
             # XML 응답 파싱
-            root = ET.fromstring(response.content)
+            try:
+                root = ET.fromstring(response.content)
+            except ET.ParseError as e:
+                print(f"Error parsing XML: {e}")
+                return None
             items = root.findall('.//item')  # XML 구조에 따라 조정 필요
             filtered_data = filter_desired_items(items)
 
