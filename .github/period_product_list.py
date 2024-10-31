@@ -19,19 +19,27 @@ def get_period_product_list():
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
+        # 응답 내용을 출력하여 확인
+        print(response.text)  # API 응답 내용을 출력
+
         if response.status_code == 200:
             data = response.json()
-            filtered_data = filter_desired_items(data.get('data', []))
-            return {
-                "all_data": filtered_data,
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
+            if 'data' in data:
+                filtered_data = filter_desired_items(data['data'])
+                return {
+                    "all_data": filtered_data,
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+            else:
+                print("No 'data' field found in the response.")
+                return None
         else:
             print(f"Failed to fetch data for period product list. Status code: {response.status_code}")
             return None
     except Exception as e:
         print(f"Error occurred while fetching period product list: {e}")
         return None
+
 
 def filter_desired_items(items):
     filtered_items = []
