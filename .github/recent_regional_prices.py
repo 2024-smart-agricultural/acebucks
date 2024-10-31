@@ -20,8 +20,8 @@ def fetch_daily_county_list():
         'p_category_code': '100',    # 카테고리 코드 설정
         'p_regday': today,    # 날짜 설정
         'p_convert_kg_yn': 'N',      # kg 변환 여부
-        'p_cert_key': secrets.API_KEY,  # API 인증 키
-        'p_cert_id': secrets.CERT_ID     # 인증 ID
+        'p_cert_key': os.getenv('KAMIS_KEY'),  # API 인증 키
+        'p_cert_id': os.getenv('P_CERT_ID')     # 인증 ID
         'p_returntype': 'json'         # JSON으로 응답 요청
     }
     
