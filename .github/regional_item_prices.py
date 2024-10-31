@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import subprocess
+import secrets  # 비밀 정보를 관리하는 모듈
 
 # 원하는 키워드 리스트
 desired_keywords = [
@@ -17,8 +18,8 @@ def fetch_item_info(item_code):
     params = {
         'p_item_code': item_code,  # 아이템 코드
         'p_returntype': 'json',     # JSON으로 응답 요청
-        'p_cert_key': 'YOUR_API_KEY',  # API 인증 키 입력
-        'p_cert_id': 'YOUR_CERT_ID'     # 인증 ID 입력
+        'p_cert_key': secrets.API_KEY,  # API 인증 키
+        'p_cert_id': secrets.CERT_ID     # 인증 ID
     }
     
     try:
