@@ -21,6 +21,9 @@ def get_recent_regional_prices():
         response.raise_for_status()
 
         if response.status_code == 200:
+            # 응답 내용 출력
+            print("Response content:", response.content.decode('utf-8'))
+
             # XML 응답 파싱
             root = ET.fromstring(response.content)
             items = root.findall('.//item')  # XML 구조에 따라 조정 필요
