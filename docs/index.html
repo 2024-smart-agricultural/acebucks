@@ -149,24 +149,21 @@
     netlifyIdentity.init();
 
     window.onload = () => {
-    const currentUser = netlifyIdentity.currentUser();
-    if (currentUser) {
-        updateUI(currentUser);
-    } else {
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            updateUI(user);
+        const currentUser = netlifyIdentity.currentUser();
+        if (currentUser) {
+            updateUI(currentUser);
+            // 로그인 상태라면 데이터 가져오기
+            fetchData(); // 데이터 가져오기 함수 호출
         } else {
             netlifyIdentity.on('init', user => {
                 if (user) {
                     updateUI(user);
-                    }
-                });
-            }
+                    fetchData(); // 데이터 가져오기 함수 호출
+                }
+            });
         }
     };
-    
+
     function handleLogin() {
         const email = document.getElementById("login-email").value;
         const password = document.getElementById("login-password").value;
@@ -199,7 +196,7 @@
             loginContainer.classList.add("hidden");
             logoutButton.style.display = "block";
             dataContainer.classList.remove("hidden");
-            fetchData();
+            fetchData(); // 데이터 가져오기 호출
         } else {
             loginContainer.classList.remove("hidden");
             logoutButton.style.display = "none";
@@ -220,20 +217,13 @@
 
     // 데이터 가져오기 함수
     async function fetchData() {
-        const dataContainer = document.getElementById("data-container");
-        dataContainer.classList.add("hidden"); // 데이터가 로드되기 전에 숨김
-    
-        await Promise.all([
-            fetchEcoPriceList(),
-            fetchPeriodProductList(),
-            fetchDailyPriceCategoryList(),
-            fetchRecentRegionalPriceList(),
-            fetchRegionalItemPriceList()
-        ]);
-        
-        dataContainer.classList.remove("hidden"); // 데이터 로드 후에 보여줌
+        await fetchEcoPriceList();
+        await fetchPeriodProductList();
+        await fetchDailyPriceCategoryList();
+        await fetchRecentRegionalPriceList();
+        await fetchRegionalItemPriceList();
     }
-    
+   
     async function fetchEcoPriceList() {
         try {
             const response = await fetch('./eco_price_list.json');
