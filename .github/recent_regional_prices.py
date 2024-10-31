@@ -19,6 +19,9 @@ def get_recent_regional_prices():
         response = requests.get(url, timeout=10)
         response.raise_for_status()
 
+        # 응답 내용을 출력하여 확인
+        print(response.text)  # API 응답 내용을 출력
+
         if response.status_code == 200:
             data = response.json()
             if 'data' in data and data['data']:
@@ -39,7 +42,7 @@ def get_recent_regional_prices():
     except Exception as e:
         print(f"Error occurred while fetching recent regional prices: {e}")
         return None
-
+        
 def filter_desired_prices(items):
     filtered_items = [
         item for item in items
