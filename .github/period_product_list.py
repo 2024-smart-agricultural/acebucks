@@ -45,7 +45,7 @@ def get_period_product_data(item_code):
             product_info = {
                 "item_code": item_code,
                 "all_data": data,
-                "date": datetime.now().strftime("%Y-%m-%d")
+                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             return product_info
         else:
@@ -63,6 +63,7 @@ def save_period_product_data():
         new_data = get_period_product_data(item_code)
         if new_data and is_desired_product(new_data):
             all_product_data.append(new_data)
+            print(f"Collected data for: {item_code}")
 
     if all_product_data:
         # 모든 정보를 포함한 JSON 파일을 생성하고 UTF-8 인코딩 사용
@@ -76,10 +77,11 @@ def save_period_product_data():
 
 def is_desired_product(product_info):
     # product_info에서 원하는 키워드가 포함되어 있는지 체크
-    for item in product_info['all_data']['data']['item']:
-        product_name = item.get('productName', '')
-        if any(keyword in product_name for keyword in desired_keywords):
-            return True
+    if 'data' in product_info['all_data']:
+        for item in product_info['all_data']['data']:
+            product_name = item.get('productName', '')
+            if any(keyword in product_name for keyword in desired_keywords):
+                return True
     return False
 
 def commit_and_push_changes():
