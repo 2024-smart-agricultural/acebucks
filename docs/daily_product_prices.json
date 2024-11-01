@@ -9,7 +9,6 @@
                 "p_productrankcode": "04",
                 "p_countycode": [],
                 "p_convert_kg_yn": "N",
-                "p_id": [],
                 "p_returntype": "json"
             }
         ],
@@ -27,7 +26,6 @@
                 "p_productrankcode": "04",
                 "p_countycode": [],
                 "p_convert_kg_yn": "N",
-                "p_id": [],
                 "p_returntype": "json"
             }
         ],
