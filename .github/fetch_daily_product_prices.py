@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 from datetime import datetime, timedelta  # timedelta를 추가로 가져옴
 import time
+import xml.etree.ElementTree as ET
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
@@ -29,19 +30,6 @@ def load_item_codes_from_json(file_path='docs/code_mappings.json'):
         print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
         return []
 
-# NaN 값 또는 문자열 "null"을 None으로 변환하는 함수
-def replace_invalid_values(obj):
-    if isinstance(obj, list):
-        return [replace_invalid_values(i) for i in obj]
-    elif isinstance(obj, dict):
-        return {k: replace_invalid_values(v) for k, v in obj.items()}
-    elif isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
-        return None
-    elif isinstance(obj, str) and obj.lower() == "null":
-        return None
-    else:
-        return obj
-
 # 2. 일별 농산물 도소매 가격 정보 가져오기
 def fetch_daily_product_prices():
     item_codes = load_item_codes_from_json('docs/code_mappings.json')
@@ -59,7 +47,7 @@ def fetch_daily_product_prices():
                 'action': 'periodProductList',
                 'p_cert_key': KAMIS_KEY,
                 'p_cert_id': KAMIS_ID,
-                'p_returntype': 'json',
+                'p_returntype': 'xml',  # XML 형식으로 반환 요청
                 'p_startday': (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'),  # 30일 전부터 시작
                 'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 현재 날짜를 종료 날짜로 설정
                 'p_itemcode': item_code  # 각 품목 코드에 대해 반복 요청
@@ -69,29 +57,27 @@ def fetch_daily_product_prices():
 
             if response.status_code == 200:
                 try:
-                    data = response.json()
+                    # XML 파싱
+                    root = ET.fromstring(response.content)
 
-                    # 특정 키 제거
-                    def remove_keys(obj, keys_to_remove):
-                        if isinstance(obj, list):
-                            return [remove_keys(i, keys_to_remove) for i in obj]
-                        elif isinstance(obj, dict):
-                            return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
-                        else:
-                            return obj
+                    # <item> 요소들을 찾아서 필요한 데이터 추출
+                    items = root.findall('.//item')
+                    for item in items:
+                        data = {
+                            'itemname': item.find('itemname').text if item.find('itemname') is not None else '',
+                            'kindname': item.find('kindname').text if item.find('kindname') is not None else '',
+                            'countyname': item.find('countyname').text if item.find('countyname') is not None else '',
+                            'marketname': item.find('marketname').text if item.find('marketname') is not None else '',
+                            'yyyy': item.find('yyyy').text if item.find('yyyy') is not None else '',
+                            'regday': item.find('regday').text if item.find('regday') is not None else '',
+                            'price': item.find('price').text if item.find('price') is not None else ''
+                        }
+                        all_data.append(data)
 
-                    keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
-                    cleaned_data = remove_keys(data, keys_to_remove)
-
-                    # NaN 값 및 유효하지 않은 값 변환
-                    cleaned_data = replace_invalid_values(cleaned_data)
-
-                    # 수집된 데이터를 리스트에 추가
-                    all_data.append(cleaned_data)
                     break  # 성공하면 재시도 루프 종료
-                except json.JSONDecodeError:
-                    print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
-                    break  # JSON 파싱 오류는 재시도하지 않음
+                except ET.ParseError:
+                    print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+                    break  # XML 파싱 오류는 재시도하지 않음
             else:
                 print(f"API 요청 실패 (품목 코드: {item_code}, 시도 횟수: {attempt + 1}): 상태 코드 {response.status_code}")
                 if attempt < retry_count - 1:
@@ -117,7 +103,7 @@ def fetch_daily_product_prices():
     # 업데이트된 데이터를 JSON 파일로 저장
     try:
         with open(json_file_path, 'w', encoding='utf-8') as f:
-            json.dump(existing_data, f, ensure_ascii=False, indent=4, allow_nan=False)
+            json.dump(existing_data, f, ensure_ascii=False, indent=4)
     except ValueError as e:
         print(f"JSON 저장 중 오류 발생: {e}")
 
