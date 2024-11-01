@@ -11,19 +11,6 @@ KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
 BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=regionalPriceList"
 
-excluded_item_codes = [
-    '111', '112', '141', '142', '143', '144', '151', '152', '161', '113', '162', 
-    '163', '164', '114', '211', '212', '279', '280', '213', '214', '215', '216', 
-    '221', '222', '223', '224', '225', '226', '231', '232', '233', '241', '242', 
-    '243', '244', '258', '259', '245', '246', '247', '248', '251', '252', '253', 
-    '254', '255', '256', '257', '261', '262', '263', '264', '265', '422', '217', 
-    '218', '266', '312', '313', '314', '315', '316', '317', '318', '319', '321', 
-    '322', '411', '412', '413', '414', '415', '416', '418', '419', '420', '421', 
-    '423', '424', '425', '426', '427', '428', '430', '429', '611', '613', '614', 
-    '649', '615', '619', '638', '639', '640', '641', '642', '644', '650', '651', 
-    '652', '612', '653', '654', '616'
-]
-
 # URL에서 JSON 파일을 불러오기
 def load_item_codes_from_url(url='https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'):
     print(f"URL 확인: {url}")  # URL 출력
@@ -33,8 +20,11 @@ def load_item_codes_from_url(url='https://2024-smart-agricultural.github.io/aceb
         data = response.json()
         print(f"JSON 데이터 로드 성공: {data}")  # JSON 데이터 로드 성공 시 출력
         if 'item_mapping' in data:
-            item_codes = [code for code in data['item_mapping'].keys() if code not in excluded_item_codes]
-            print(f"가져온 품목 코드 리스트: {item_codes}")  # 가져온 품목 코드 리스트 출력
+            item_codes = list(data['item_mapping'].keys())  # 필터링 없이 모든 품목 코드 사용
+            
+            # 추가된 디버깅 출력
+            print(f"모든 품목 코드: {item_codes}")
+            
             return item_codes
         else:
             print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
@@ -56,13 +46,10 @@ async def fetch_data(session, item_code):
         'p_countycode': ''
     }
 
-    print(f"API 요청 파라미터: {params}")  # API 요청 파라미터 출력
-
     try:
         async with session.get(BASE_URL, params=params, timeout=20) as response:
             if response.status == 200:
                 response_text = await response.text()
-                print(f"응답 텍스트 (품목 코드 {item_code}): {response_text[:100]}...")  # 응답 텍스트 일부 출력
                 try:
                     root = ET.fromstring(response_text)
                     items = root.findall('.//item')
@@ -106,18 +93,14 @@ async def fetch_all_data(item_codes):
     return all_data
 
 def save_to_json(data, file_path):
-    print(f"JSON 파일 저장 경로 확인: {file_path}")  # 파일 경로 출력
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
-                print(f"기존 JSON 데이터 로드 성공: {len(existing_data)} 개의 항목")  # 기존 데이터 수 출력
         except json.JSONDecodeError:
             existing_data = []
-            print("기존 JSON 데이터를 파싱할 수 없습니다. 새로 생성합니다.")
     else:
         existing_data = []
-        print("기존 JSON 파일이 없습니다. 새 파일을 생성합니다.")
 
     for new_data in data:
         if new_data not in existing_data:
@@ -126,7 +109,6 @@ def save_to_json(data, file_path):
     try:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(existing_data, f, ensure_ascii=False, indent=4)
-            print(f"JSON 데이터 저장 완료: {len(existing_data)} 개의 항목")  # 저장된 데이터 수 출력
     except ValueError as e:
         print(f"JSON 저장 중 오류 발생: {e}")
 
@@ -138,7 +120,7 @@ def fetch_regional_prices():
         return
 
     all_data = asyncio.run(fetch_all_data(item_codes))
-    save_to_json(all_data, 'acebucks/docs/regional_product_prices.json')
+    save_to_json(all_data, docs/regional_product_prices.json')
 
 if __name__ == "__main__":
     fetch_regional_prices()
