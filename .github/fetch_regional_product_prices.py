@@ -26,7 +26,7 @@ excluded_item_codes = [
 
 
 # code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
-def load_item_codes_from_json(file_path='docs/code_mappings.json'):
+def load_item_codes_from_json(file_path='https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'):
     abs_path = os.path.abspath(file_path)
     print(f"파일 경로 확인: {abs_path}")  # 디버그용으로 절대 경로 출력
     try:
@@ -133,7 +133,7 @@ def save_to_json(data, file_path):
         print(f"JSON 저장 중 오류 발생: {e}")
         
 def fetch_regional_prices():
-    item_codes = load_item_codes_from_json('docs/code_mappings.json')
+    item_codes = load_item_codes_from_json('https://2024-smart-agricultural.github.io/acebucks/code_mappings.json')
     if not item_codes:
         print("품목 코드 목록을 가져오는 데 실패했습니다.")
         return
