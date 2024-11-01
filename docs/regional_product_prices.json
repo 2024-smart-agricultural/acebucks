@@ -10,7 +10,6 @@
                 "p_kindcode": "EE",
                 "p_productrankcode": "04",
                 "p_convert_kg_yn": "N",
-                "p_id": [],
                 "p_returntype": "json"
             }
         ],
