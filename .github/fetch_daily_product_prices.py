@@ -75,69 +75,72 @@ def fetch_daily_product_prices():
                 if response.status_code == 200:
                     if response.content.strip():  # 응답이 비어 있지 않은지 확인
                         try:
-                        # XML 파싱
-                        root = ET.fromstring(response.content)
-    
-                        # <item> 요소들을 찾아서 필요한 데이터 추출
-                        items = root.findall('.//item')
-                        for item in items:
-                            data = {
-                                'itemname': item.find('itemname').text if item.find('itemname') is not None else '',
-                                'kindname': item.find('kindname').text if item.find('kindname') is not None else '',
-                                'countyname': item.find('countyname').text if item.find('countyname') is not None else '',
-                                'marketname': item.find('marketname').text if item.find('marketname') is not None else '',
-                                'yyyy': item.find('yyyy').text if item.find('yyyy') is not None else '',
-                                'regday': item.find('regday').text if item.find('regday') is not None else '',
-                                'price': item.find('price').text if item.find('price') is not None else ''
-                            }
-                            # 데이터가 비어있지 않으면 추가
-                            if any(value for value in data.values()):
-                                all_data.append(data)
-    
+                            # XML 파싱
+                            root = ET.fromstring(response.content)
+
+                            # <item> 요소들을 찾아서 필요한 데이터 추출
+                            items = root.findall('.//item')
+                            for item in items:
+                                data = {
+                                    'itemname': item.find('itemname').text if item.find('itemname') is not None else '',
+                                    'kindname': item.find('kindname').text if item.find('kindname') is not None else '',
+                                    'countyname': item.find('countyname').text if item.find('countyname') is not None else '',
+                                    'marketname': item.find('marketname').text if item.find('marketname') is not None else '',
+                                    'yyyy': item.find('yyyy').text if item.find('yyyy') is not None else '',
+                                    'regday': item.find('regday').text if item.find('regday') is not None else '',
+                                    'price': item.find('price').text if item.find('price') is not None else ''
+                                }
+                                # 데이터가 비어있지 않으면 추가
+                                if any(value for value in data.values()):
+                                    all_data.append(data)
+
+                            break  # 성공하면 재시도 루프 종료
+                        except ET.ParseError:
+                            print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+                    else:
+                        print(f"서버에서 빈 응답을 반환했습니다 (품목 코드: {item_code}).")
+
+                # JSON 응답 처리
+                elif params['p_returntype'] == 'json' and response.status_code == 200:
+                    try:
+                        data = response.json()
+
+                        # 특정 키 제거
+                        def remove_keys(obj, keys_to_remove):
+                            if isinstance(obj, list):
+                                return [remove_keys(i, keys_to_remove) for i in obj]
+                            elif isinstance(obj, dict):
+                                return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
+                            else:
+                                return obj
+
+                        keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
+                        cleaned_data = remove_keys(data, keys_to_remove)
+
+                        # NaN 값 및 유효하지 않은 값 변환
+                        cleaned_data = replace_invalid_values(cleaned_data)
+
+                        # 수집된 데이터를 리스트에 추가
+                        all_data.append(cleaned_data)
+
                         break  # 성공하면 재시도 루프 종료
-                    except ET.ParseError:
-                        print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+                    except json.JSONDecodeError:
+                        print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+
+                # 요청 실패 처리
                 else:
-                    print(f"서버에서 빈 응답을 반환했습니다 (품목 코드: {item_code}).")
+                    print(f"API 요청 실패 (품목 코드: {item_code}, 시도 횟수: {attempt + 1}): 상태 코드 {response.status_code}")
+                    if response.status_code == 500:
+                        excluded_item_codes.append(item_code)  # 실패한 품목 코드 기록하여 이후 실행 시 제외
+                        print(f"품목 코드 {item_code}가 서버 오류로 인해 제외되었습니다.")
+                        break  # 상태 코드 500인 경우 재시도하지 않음
+                    if attempt < retry_count - 1:
+                        time.sleep(2)  # 재시도 전에 2초 대기
+                    else:
+                        print(f"최대 재시도 횟수 초과 (품목 코드: {item_code})")
 
-            # JSON 응답 처리
-            elif params['p_returntype'] == 'json' and response.status_code == 200:
-                try:
-                    data = response.json()
-
-                    # 특정 키 제거
-                    def remove_keys(obj, keys_to_remove):
-                        if isinstance(obj, list):
-                            return [remove_keys(i, keys_to_remove) for i in obj]
-                        elif isinstance(obj, dict):
-                            return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
-                        else:
-                            return obj
-
-                    keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
-                    cleaned_data = remove_keys(data, keys_to_remove)
-
-                    # NaN 값 및 유효하지 않은 값 변환
-                    cleaned_data = replace_invalid_values(cleaned_data)
-
-                    # 수집된 데이터를 리스트에 추가
-                    all_data.append(cleaned_data)
-
-                    break  # 성공하면 재시도 루프 종료
-                except json.JSONDecodeError:
-                    print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
-
-            # 요청 실패 처리
-            else:
-                print(f"API 요청 실패 (품목 코드: {item_code}, 시도 횟수: {attempt + 1}): 상태 코드 {response.status_code}")
-                if response.status_code == 500:
-                    excluded_item_codes.append(item_code)  # 실패한 품목 코드 기록하여 이후 실행 시 제외
-                    print(f"품목 코드 {item_code}가 서버 오류로 인해 제외되었습니다.")
-                    break  # 상태 코드 500인 경우 재시도하지 않음
-                if attempt < retry_count - 1:
-                    time.sleep(2)  # 재시도 전에 2초 대기
-                else:
-                    print(f"최대 재시도 횟수 초과 (품목 코드: {item_code})")
+            except requests.exceptions.RequestException as e:
+                print(f"요청 오류 발생 (품목 코드: {item_code}, 시도 횟수: {attempt + 1}): {e}")
 
         # 각 요청 사이에 딜레이 추가
         time.sleep(1)  # 서버 과부하 방지를 위해 1초 대기
