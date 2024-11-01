@@ -82,30 +82,34 @@ def fetch_daily_product_prices():
 
             # XML 응답 처리
             if params['p_returntype'] == 'xml' and response.status_code == 200:
-                try:
-                    # XML 파싱
-                    root = ET.fromstring(response.content)
-
-                    # <item> 요소들을 찾아서 필요한 데이터 추출
-                    items = root.findall('.//item')
-                    for item in items:
-                        data = {
-                            'itemname': item.find('itemname').text if item.find('itemname') is not None else '',
-                            'kindname': item.find('kindname').text if item.find('kindname') is not None else '',
-                            'countyname': item.find('countyname').text if item.find('countyname') is not None else '',
-                            'marketname': item.find('marketname').text if item.find('marketname') is not None else '',
-                            'yyyy': item.find('yyyy').text if item.find('yyyy') is not None else '',
-                            'regday': item.find('regday').text if item.find('regday') is not None else '',
-                            'price': item.find('price').text if item.find('price') is not None else ''
-                        }
-                        # 데이터가 비어있지 않으면 추가
-                        if any(value for value in data.values()):
-                            all_data.append(data)
-
-                    break  # 성공하면 재시도 루프 종료
-                except ET.ParseError:
-                    print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
-                    break  # XML 파싱 오류는 재시도하지 않음
+                if response.content.strip():  # 응답이 비어 있지 않은지 확인
+                    try:
+                        # XML 파싱
+                        root = ET.fromstring(response.content)
+    
+                        # <item> 요소들을 찾아서 필요한 데이터 추출
+                        items = root.findall('.//item')
+                        for item in items:
+                            data = {
+                                'itemname': item.find('itemname').text if item.find('itemname') is not None else '',
+                                'kindname': item.find('kindname').text if item.find('kindname') is not None else '',
+                                'countyname': item.find('countyname').text if item.find('countyname') is not None else '',
+                                'marketname': item.find('marketname').text if item.find('marketname') is not None else '',
+                                'yyyy': item.find('yyyy').text if item.find('yyyy') is not None else '',
+                                'regday': item.find('regday').text if item.find('regday') is not None else '',
+                                'price': item.find('price').text if item.find('price') is not None else ''
+                            }
+                            # 데이터가 비어있지 않으면 추가
+                            if any(value for value in data.values()):
+                                all_data.append(data)
+    
+                        break  # 성공하면 재시도 루프 종료
+                    except ET.ParseError:
+                        print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+                else:
+                    print(f"서버에서 빈 응답을 반환했습니다 (품목 코드: {item_code}).")
+            else:
+                print(f"API 요청 실패 (품목 코드: {item_code}, 상태 코드: {response.status_code})")
 
             # JSON 응답 처리
             elif params['p_returntype'] == 'json' and response.status_code == 200:
