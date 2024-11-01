@@ -26,7 +26,7 @@ excluded_item_codes = [
 
 
 # code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
-ef load_item_codes_from_json(file_path='acebucks/docs/code_mappings.json'):
+def load_item_codes_from_json(file_path='acebucks/docs/code_mappings.json'):
     try:
         print(f"파일 경로 확인: {file_path}")  # 디버깅 메시지 추가
         with open(file_path, 'r', encoding='utf-8') as f:
