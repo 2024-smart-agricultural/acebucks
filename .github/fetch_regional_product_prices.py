@@ -3,10 +3,11 @@ import requests
 import json
 import os
 from datetime import datetime
+import numpy as np
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
-URL = "http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo"
+BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo"
 
 # 1. 전체 품목 코드 리스트 가져오기
 def fetch_item_codes():
@@ -17,7 +18,7 @@ def fetch_item_codes():
         'p_returntype': 'json'
     }
 
-    response = requests.get(BASE_URL, params=params)
+    response = requests.get(BASE_URL, params=params)  # BASE_URL 사용
     if response.status_code == 200:
         data = response.json()
         item_codes = [item['p_itemcode'] for item in data['itemList']]
@@ -48,7 +49,7 @@ def fetch_regional_prices():
             'p_countycode': ''  # 지역 코드도 설정하지 않음 (모든 지역 가져오기)
         }
 
-        response = requests.get(BASE_URL, params=params)
+        response = requests.get(BASE_URL, params=params)  # BASE_URL 사용
         if response.status_code == 200:
             data = response.json()
 
@@ -99,6 +100,6 @@ def fetch_regional_prices():
     # 업데이트된 데이터를 JSON 파일로 저장
     with open(json_file_path, 'w', encoding='utf-8') as f:
         json.dump(existing_data, f, ensure_ascii=False, indent=4)
-        
+
 if __name__ == "__main__":
     fetch_regional_prices()
