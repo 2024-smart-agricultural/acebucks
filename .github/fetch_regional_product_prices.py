@@ -26,7 +26,7 @@ excluded_item_codes = [
 
 
 # code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
-ef load_item_codes_from_json(file_path='docs/code_mappings.json'):
+ef load_item_codes_from_json(file_path='acebucks/docs/code_mappings.json'):
     try:
         print(f"파일 경로 확인: {file_path}")  # 디버깅 메시지 추가
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -134,7 +134,7 @@ def save_to_json(data, file_path):
         print(f"JSON 저장 중 오류 발생: {e}")
         
 def fetch_regional_prices():
-    item_codes = load_item_codes_from_json('docs/code_mappings.json')
+    item_codes = load_item_codes_from_json('acebucks/docs/code_mappings.json')
     if not item_codes:
         print("품목 코드 목록을 가져오는 데 실패했습니다.")
         return
