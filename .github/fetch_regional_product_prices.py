@@ -14,7 +14,6 @@ def fetch_regional_prices():
         'p_cert_key': KAMIS_KEY,
         'p_cert_id': KAMIS_ID,
         'p_returntype': 'json',
-        'p_startday': '2024-01-01',  # 시작일을 설정 (예: 연초부터 현재까지)
         'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 종료일 설정 (오늘)
         'p_itemcategorycode': '',  # 모든 품목 카테고리 가져오기
         'p_itemcode': '',  # 모든 품목 코드 가져오기
