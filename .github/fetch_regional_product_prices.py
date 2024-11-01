@@ -29,6 +29,7 @@ def fetch_regional_prices():
         # API 키 정보 제거
         data.pop('p_cert_key', None)
         data.pop('p_cert_id', None)
+        data.pop('p_startday', None)
 
         # NaN 값을 null로 변환
         def replace_nan(obj):
