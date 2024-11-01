@@ -98,7 +98,9 @@ def fetch_daily_product_prices():
                             'regday': item.find('regday').text if item.find('regday') is not None else '',
                             'price': item.find('price').text if item.find('price') is not None else ''
                         }
-                        all_data.append(data)
+                        # 데이터가 비어있지 않으면 추가
+                        if any(value for value in data.values()):
+                            all_data.append(data)
 
                     break  # 성공하면 재시도 루프 종료
                 except ET.ParseError:
