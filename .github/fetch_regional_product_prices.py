@@ -26,6 +26,10 @@ def fetch_regional_prices():
     if response.status_code == 200:
         data = response.json()
 
+        # API 키 정보 제거
+        data.pop('p_cert_key', None)
+        data.pop('p_cert_id', None)
+
         # NaN 값을 null로 변환
         def replace_nan(obj):
             if isinstance(obj, list):
