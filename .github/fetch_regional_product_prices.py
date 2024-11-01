@@ -26,7 +26,20 @@ def load_item_codes_from_json(file_path='docs/code_mappings.json'):
     except json.JSONDecodeError:
         print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
         return []
-        
+
+# NaN 값 또는 문자열 "null"을 None으로 변환하는 함수
+def replace_invalid_values(obj):
+    if isinstance(obj, list):
+        return [replace_invalid_values(i) for i in obj]
+    elif isinstance(obj, dict):
+        return {k: replace_invalid_values(v) for k, v in obj.items()}
+    elif isinstance(obj, float) and np.isnan(obj):
+        return None
+    elif isinstance(obj, str) and obj.lower() == "null":
+        return None
+    else:
+        return obj
+
 # 2. 지역별 가격 정보 가져오기
 def fetch_regional_prices():
     item_codes = load_item_codes_from_json('docs/code_mappings.json')
@@ -66,19 +79,7 @@ def fetch_regional_prices():
                 keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
                 cleaned_data = remove_keys(data, keys_to_remove)
 
-                # NaN 값 또는 문자열 "null"을 None으로 변환
-                def replace_invalid_values(obj):
-                    if isinstance(obj, list):
-                        return [replace_invalid_values(i) for i in obj]
-                    elif isinstance(obj, dict):
-                        return {k: replace_invalid_values(v) for k, v in obj.items()}
-                    elif isinstance(obj, float) and np.isnan(obj):
-                        return None
-                    elif isinstance(obj, str) and obj.lower() == "null":
-                        return None
-                    else:
-                        return obj
-
+                # NaN 값 및 유효하지 않은 값 변환
                 cleaned_data = replace_invalid_values(cleaned_data)
 
                 # 수집된 데이터를 리스트에 추가
