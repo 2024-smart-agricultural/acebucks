@@ -9,36 +9,27 @@ KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
 BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=periodProductList"
 
-# 1. 전체 품목 코드 리스트 가져오기
-def fetch_item_codes():
-    params = {
-        'action': 'ItemCodeList',  # 전체 품목 코드 가져오는 액션
-        'p_cert_key': KAMIS_KEY,
-        'p_cert_id': KAMIS_ID,
-        'p_returntype': 'json'
-    }
-
-    response = requests.get(BASE_URL, params=params)
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            # 응답 데이터의 구조를 확인하고, 'itemList'가 있는지 확인
-            if 'itemList' in data:
-                item_codes = [item['p_itemcode'] for item in data['itemList']]
+# 1. code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
+def load_item_codes_from_json(file_path='docs/code_mappings.json'):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if 'item_mapping' in data:
+                item_codes = list(data['item_mapping'].keys())
                 return item_codes
             else:
-                print(f"'itemList' 키를 찾을 수 없습니다. 응답 데이터: {data}")
+                print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
                 return []
-        except json.JSONDecodeError:
-            print("JSON 응답을 파싱할 수 없습니다. 응답 내용:", response.text)
-            return []
-    else:
-        print(f"전체 품목 코드 요청 실패: 상태 코드 {response.status_code}, 응답 내용: {response.text}")
+    except FileNotFoundError:
+        print(f"파일을 찾을 수 없습니다: {file_path}")
         return []
-
-# 2. 각 품목에 대한 가격 정보 가져오기
-def fetch_daily_prices():
-    item_codes = fetch_item_codes()
+    except json.JSONDecodeError:
+        print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
+        return []
+        
+# 2. 지역별 가격 정보 가져오기
+def fetch_regional_prices():
+    item_codes = load_item_codes_from_json('docs/code_mappings.json')
     if not item_codes:
         print("품목 코드 목록을 가져오는 데 실패했습니다.")
         return
@@ -47,13 +38,15 @@ def fetch_daily_prices():
 
     for item_code in item_codes:
         params = {
-            'action': 'periodProductList',
+            'action': 'regionalPriceList',
             'p_cert_key': KAMIS_KEY,
             'p_cert_id': KAMIS_ID,
             'p_returntype': 'json',
-            'p_startday': '2024-01-01',  # 시작 날짜 설정
-            'p_endday': datetime.now().strftime("%Y-%m-%d"),  # 현재 날짜를 종료 날짜로 설정
-            'p_itemcode': item_code  # 각 품목 코드에 대해 반복 요청
+            'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 종료일 설정 (오늘)
+            'p_itemcode': item_code,  # 각 품목 코드에 대해 반복 요청
+            'p_kindcode': '',  # 품종 코드 설정하지 않음 (모든 것 가져오기)
+            'p_productrankcode': '',  # 모든 등급에 대해 가져오기
+            'p_countycode': ''  # 지역 코드도 설정하지 않음 (모든 지역 가져오기)
         }
 
         response = requests.get(BASE_URL, params=params)
@@ -94,7 +87,7 @@ def fetch_daily_prices():
                 print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
         else:
             print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status_code}, 응답 내용: {response.text}")
-    
+
     # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
     json_file_path = 'docs/daily_product_prices.json'
     if os.path.exists(json_file_path):
@@ -112,4 +105,4 @@ def fetch_daily_prices():
         json.dump(existing_data, f, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
-    fetch_daily_prices()
+    fetch_regional_prices()
