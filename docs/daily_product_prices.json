@@ -8,7 +8,7 @@
                 "p_kindcode": "01",
                 "p_productrankcode": "04",
                 "p_countycode": [],
-                "p_convert_kg_yn": "N",
+                "p_convert_kg_yn": "null",
                 "p_returntype": "json"
             }
         ],
@@ -25,7 +25,7 @@
                 "p_kindcode": "01",
                 "p_productrankcode": "04",
                 "p_countycode": [],
-                "p_convert_kg_yn": "N",
+                "p_convert_kg_yn": "null",
                 "p_returntype": "json"
             }
         ],
