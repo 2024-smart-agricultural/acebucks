@@ -9,36 +9,27 @@ KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
 BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=ItemInfo"
 
-# 1. 전체 품목 코드 리스트 가져오기
-def fetch_item_codes():
-    params = {
-        'action': 'ItemCodeList',  # 전체 품목 코드 가져오는 액션
-        'p_cert_key': KAMIS_KEY,
-        'p_cert_id': KAMIS_ID,
-        'p_returntype': 'json'
-    }
-
-    response = requests.get(BASE_URL, params=params)  # BASE_URL 사용
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            # 'itemList'가 있는지 확인하고 처리
-            if 'itemList' in data:
-                item_codes = [item['p_itemcode'] for item in data['itemList']]
+# 1. code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
+def load_item_codes_from_json(file_path='docs/code_mappings.json'):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if 'item_mapping' in data:
+                item_codes = list(data['item_mapping'].keys())
                 return item_codes
             else:
-                print(f"'itemList' 키를 찾을 수 없습니다. 응답 데이터: {data}")
+                print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
                 return []
-        except json.JSONDecodeError:
-            print("JSON 응답을 파싱할 수 없습니다. 응답 내용:", response.text)
-            return []
-    else:
-        print(f"전체 품목 코드 요청 실패: 상태 코드 {response.status_code}, 응답 내용: {response.text}")
+    except FileNotFoundError:
+        print(f"파일을 찾을 수 없습니다: {file_path}")
         return []
-
+    except json.JSONDecodeError:
+        print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
+        return []
+        
 # 2. 지역별 가격 정보 가져오기
 def fetch_regional_prices():
-    item_codes = fetch_item_codes()
+    item_codes = load_item_codes_from_json('docs/code_mappings.json')
     if not item_codes:
         print("품목 코드 목록을 가져오는 데 실패했습니다.")
         return
@@ -58,7 +49,7 @@ def fetch_regional_prices():
             'p_countycode': ''  # 지역 코드도 설정하지 않음 (모든 지역 가져오기)
         }
 
-        response = requests.get(BASE_URL, params=params)  # BASE_URL 사용
+        response = requests.get(BASE_URL, params=params)
         if response.status_code == 200:
             try:
                 data = response.json()
