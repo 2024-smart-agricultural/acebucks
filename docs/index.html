@@ -22,7 +22,7 @@
   <div id="daily-prices"></div>
 
   <script>
-    async function fetchAndDisplayRegionalPrices(priceFilename, containerId, mappingFilename) {
+    async function fetchAndDisplayDAILYPrices(priceFilename, containerId, mappingFilename) {
       try {
         // 매핑 파일을 불러와서 품목, 항목, 등급 이름을 얻기
         const mappingResponse = await fetch(mappingFilename);
@@ -98,9 +98,9 @@
 
     // GitHub Pages에서 호스팅하는 최신 JSON 파일을 가져와서 표시
     fetchAndDisplayRegionalPrices(
-      'acebucks/regional_product_prices.json',
+      'https://2024-smart-agricultural.github.io/acebucks/daily_product_prices.json',
       'regional-prices',
-      'acebucks/code_mappings.json'
+      'https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'
     );
   </script>
 </body>
@@ -183,9 +183,9 @@
 
     // GitHub Pages에서 호스팅하는 최신 JSON 파일을 가져와서 표시
     fetchAndDisplayRegionalPrices(
-      '/acebucks/regional_product_prices.json',
+      'https://2024-smart-agricultural.github.io/acebucks/regional_product_prices.json',
       'regional-prices',
-      '/acebucks/code_mappings.json'
+      'https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'
     );
   </script>
 </body>
