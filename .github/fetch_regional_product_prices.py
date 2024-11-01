@@ -26,11 +26,20 @@ def fetch_regional_prices():
     response = requests.get(URL, params=params)
     if response.status_code == 200:
         data = response.json()
-
-        # JSON 파일로 저장
-        today = datetime.now().strftime("%Y-%m-%d")
-        with open(f'docs/regional_product_prices_{today}.json', 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
+    
+        # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
+        json_file_path = 'docs/regional_product_prices.json'
+        if os.path.exists(json_file_path):
+            with open(json_file_path, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+            # 기존 데이터에 새로운 데이터 추가
+            existing_data.append(data)
+        else:
+            existing_data = [data]
+    
+        # 업데이트된 데이터를 JSON 파일로 저장
+        with open(json_file_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_data, f, ensure_ascii=False, indent=4)
     else:
         print(f"API 요청 실패: 상태 코드 {response.status_code}")
 
