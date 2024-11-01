@@ -106,6 +106,12 @@ async def fetch_all_data(item_codes):
     return all_data
 
 def save_to_json(data, file_path):
+    # 파일의 디렉터리가 없으면 생성
+    directory = os.path.dirname(file_path)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -115,16 +121,18 @@ def save_to_json(data, file_path):
     else:
         existing_data = []
 
+    # 중복 데이터 제거 및 새로운 데이터 추가
     for new_data in data:
         if new_data not in existing_data:
             existing_data.append(new_data)
 
+    # 업데이트된 데이터를 JSON 파일로 저장
     try:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(existing_data, f, ensure_ascii=False, indent=4)
     except ValueError as e:
         print(f"JSON 저장 중 오류 발생: {e}")
-
+        
 def fetch_regional_prices():
     item_codes = load_item_codes_from_json('docs/code_mappings.json')
     if not item_codes:
