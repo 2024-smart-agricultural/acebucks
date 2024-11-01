@@ -15,6 +15,9 @@ BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=periodProductList
 # 제외하고자 하는 품목 코드 리스트
 excluded_item_codes = ['161', '113', '162', '163', '164', '114', '216', '248', '261', '262', '263', '264', '265', '217', '218', '266', '318', '319', '321', '322', '423', '426', '427', '430', '429', '614', '650', '651', '652', '612']
 
+# 제외할 품목 코드 리스트 (초기화)
+excluded_item_codes = ['161', '113', '162', '163', '164', '114', '216', '248', '261', '262', '263', '264', '265', '217', '218', '266', '318', '319', '321', '322', '423', '426', '427', '430', '429', '614', '650', '651', '652', '612']
+
 # code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
 def load_item_codes_from_json(file_path='docs/code_mappings.json'):
     try:
@@ -47,38 +50,7 @@ def replace_invalid_values(obj):
     else:
         return obj
 
-# 1. code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
-def load_item_codes_from_json(file_path='docs/code_mappings.json'):
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if 'item_mapping' in data:
-                item_codes = list(data['item_mapping'].keys())
-                return item_codes
-            else:
-                print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
-                return []
-    except FileNotFoundError:
-        print(f"파일을 찾을 수 없습니다: {file_path}")
-        return []
-    except json.JSONDecodeError:
-        print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
-        return []
-
-# NaN 값 또는 문자열 "null"을 None으로 변환하는 함수
-def replace_invalid_values(obj):
-    if isinstance(obj, list):
-        return [replace_invalid_values(i) for i in obj]
-    elif isinstance(obj, dict):
-        return {k: replace_invalid_values(v) for k, v in obj.items()}
-    elif isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
-        return None
-    elif isinstance(obj, str) and obj.lower() == "null":
-        return None
-    else:
-        return obj
-
-# 2. 일별 농산물 도소매 가격 정보 가져오기
+# 일별 농산물 도소매 가격 정보 가져오기
 def fetch_daily_product_prices():
     item_codes = load_item_codes_from_json('docs/code_mappings.json')
     if not item_codes:
@@ -86,11 +58,12 @@ def fetch_daily_product_prices():
         return
 
     all_data = []
-    failed_codes = []  # 요청 실패한 품목 코드를 저장할 리스트
 
     for item_code in item_codes:
-        if item_code in failed_codes:
-            continue  # 실패한 코드이면 다시 요청하지 않음
+        # 제외된 품목 코드는 아예 실행하지 않음
+        if item_code in excluded_item_codes:
+            print(f"품목 코드 {item_code}는 제외된 코드입니다. 실행하지 않습니다.")
+            continue
 
         retry_count = 3  # 최대 3번 재시도
 
@@ -163,15 +136,18 @@ def fetch_daily_product_prices():
             else:
                 print(f"API 요청 실패 (품목 코드: {item_code}, 시도 횟수: {attempt + 1}): 상태 코드 {response.status_code}")
                 if response.status_code == 500:
-                    failed_codes.append(item_code)  # 실패한 품목 코드 기록
+                    excluded_item_codes.append(item_code)  # 실패한 품목 코드 기록하여 이후 실행 시 제외
+                    print(f"품목 코드 {item_code}가 서버 오류로 인해 제외되었습니다.")
                     break  # 상태 코드 500인 경우 재시도하지 않음
                 if attempt < retry_count - 1:
                     time.sleep(2)  # 재시도 전에 2초 대기
                 else:
                     print(f"최대 재시도 횟수 초과 (품목 코드: {item_code})")
 
-
         # 각 요청 사이에 딜레이 추가
+        time.sleep(1)  # 서버 과부하 방지를 위해 1초 대기
+
+    # 각 요청 사이에 딜레이 추가
         time.sleep(1)  # 서버 과부하 방지를 위해 1초 대기
 
     # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
