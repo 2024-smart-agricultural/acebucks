@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 import xml.etree.ElementTree as ET
 import numpy as np
+import time
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
