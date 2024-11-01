@@ -63,15 +63,15 @@
           let row = document.createElement('tr');
           let cells = [
             itemMapping[entry.itemname] || entry.itemname,
-            entry.kindname,
-            entry.countyname,
-            entry.marketname,
-            entry.yyyy,
-            entry.regday,
-            entry.price,
-            entry.weekprice,
-            entry.monthprice,
-            entry.yearprice
+            entry.kindname || '알 수 없음',
+            entry.countyname || '알 수 없음',
+            entry.marketname || '알 수 없음',
+            entry.yyyy || '알 수 없음',
+            entry.regday || '알 수 없음',
+            entry.price || '알 수 없음',
+            entry.weekprice || '알 수 없음',
+            entry.monthprice || '알 수 없음',
+            entry.yearprice || '알 수 없음'
           ];
 
           cells.forEach(cell => {
@@ -115,9 +115,7 @@
         }
         const mappings = await mappingResponse.json();
         
-        const itemCategoryMapping = mappings.p_itemcategorycode;
-        const itemMapping = mappings.p_itemcode;
-        const productRankMapping = mappings.p_productrankcode;
+        const itemMapping = mappings.item_mapping;
 
         // 가격 데이터 불러오기
         const response = await fetch(priceFilename);
@@ -135,7 +133,7 @@
 
         // 테이블 헤더 생성
         let headerRow = document.createElement('tr');
-        let headers = ['항목 이름', '품목 이름', '등급 이름', '날짜', '가격 (원)'];
+        let headers = ['품목 이름', '품종 이름', '지역 이름', '시장 이름', '연도', '등록일', '가격 (원)', '주간 가격 (원)', '월간 가격 (원)', '연간 가격 (원)'];
         headers.forEach(header => {
           let th = document.createElement('th');
           th.textContent = header;
@@ -148,15 +146,15 @@
           let row = document.createElement('tr');
           let cells = [
             itemMapping[entry.itemname] || entry.itemname,
-            entry.kindname,
-            entry.countyname,
-            entry.marketname,
-            entry.yyyy,
-            entry.regday,
-            entry.price,
-            entry.weekprice,
-            entry.monthprice,
-            entry.yearprice
+            entry.kindname || '알 수 없음',
+            entry.countyname || '알 수 없음',
+            entry.marketname || '알 수 없음',
+            entry.yyyy || '알 수 없음',
+            entry.regday || '알 수 없음',
+            entry.price || '알 수 없음',
+            entry.weekprice || '알 수 없음',
+            entry.monthprice || '알 수 없음',
+            entry.yearprice || '알 수 없음'
           ];
 
           cells.forEach(cell => {
@@ -183,7 +181,6 @@
       'regional-prices',
       'https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'
     );
-    
   </script>
 </body>
 </html>
