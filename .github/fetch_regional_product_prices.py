@@ -24,25 +24,20 @@ excluded_item_codes = [
     '652', '612', '653', '654', '616'
 ]
 
-
-# code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
-def load_item_codes_from_json(file_path='https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'):
-    abs_path = os.path.abspath(file_path)
-    print(f"파일 경로 확인: {abs_path}")  # 디버그용으로 절대 경로 출력
+# URL에서 JSON 파일을 불러오기
+def load_item_codes_from_url(url='https://2024-smart-agricultural.github.io/acebucks/code_mappings.json'):
     try:
-        with open(abs_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if 'item_mapping' in data:
-                item_codes = [code for code in data['item_mapping'].keys() if code not in excluded_item_codes]
-                return item_codes
-            else:
-                print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
-                return []
-    except FileNotFoundError:
-        print(f"파일을 찾을 수 없습니다: {file_path}")
-        return []
-    except json.JSONDecodeError:
-        print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
+        response = requests.get(url)
+        response.raise_for_status()  # 요청이 성공했는지 확인
+        data = response.json()
+        if 'item_mapping' in data:
+            item_codes = [code for code in data['item_mapping'].keys() if code not in excluded_item_codes]
+            return item_codes
+        else:
+            print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
+            return []
+    except requests.exceptions.RequestException as e:
+        print(f"URL에서 JSON 파일을 불러오는 데 실패했습니다: {e}")
         return []
 
 async def fetch_data(session, item_code):
@@ -89,7 +84,7 @@ async def fetch_data(session, item_code):
                 print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status}")
     except Exception as e:
         print(f"요청 오류 발생 (품목 코드: {item_code}): {e}")
-
+        
 async def fetch_all_data(item_codes):
     all_data = []
     async with aiohttp.ClientSession() as session:
@@ -105,12 +100,6 @@ async def fetch_all_data(item_codes):
     return all_data
 
 def save_to_json(data, file_path):
-    # 파일의 디렉터리가 없으면 생성
-    directory = os.path.dirname(file_path)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
     if os.path.exists(file_path):
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -120,26 +109,25 @@ def save_to_json(data, file_path):
     else:
         existing_data = []
 
-    # 중복 데이터 제거 및 새로운 데이터 추가
     for new_data in data:
         if new_data not in existing_data:
             existing_data.append(new_data)
 
-    # 업데이트된 데이터를 JSON 파일로 저장
     try:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(existing_data, f, ensure_ascii=False, indent=4)
     except ValueError as e:
         print(f"JSON 저장 중 오류 발생: {e}")
+
         
 def fetch_regional_prices():
-    item_codes = load_item_codes_from_json('https://2024-smart-agricultural.github.io/acebucks/code_mappings.json')
+    item_codes = load_item_codes_from_url('https://2024-smart-agricultural.github.io/acebucks/code_mappings.json')
     if not item_codes:
         print("품목 코드 목록을 가져오는 데 실패했습니다.")
         return
 
     all_data = asyncio.run(fetch_all_data(item_codes))
-    save_to_json(all_data, 'docs/regional_product_prices.json')
+    save_to_json(all_data, 'acebucks/docs/regional_product_prices.json')
 
 if __name__ == "__main__":
     fetch_regional_prices()
