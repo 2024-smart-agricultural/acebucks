@@ -40,6 +40,8 @@ jobs:
           git add docs/regional_product_prices.json || git rm docs/regional_product_prices.json
           git commit -m "Automatically resolve merge conflict for regional_product_prices.json" || echo "No commit needed"
 
+      - name: List files for debugging
+        run: ls -R
 
       - name: Commit and push JSON data
         run: |
