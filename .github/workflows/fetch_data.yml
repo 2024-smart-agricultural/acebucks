@@ -33,6 +33,14 @@ jobs:
           KAMIS_KEY: ${{ secrets.KAMIS_KEY }}
         run: python .github/fetch_regional_product_prices.py
 
+      - name: Resolve merge conflicts
+        run: |
+          git config --local user.name "github-actions"
+          git config --local user.email "github-actions@github.com"
+          git add docs/regional_product_prices.json || git rm docs/regional_product_prices.json
+          git commit -m "Automatically resolve merge conflict for regional_product_prices.json" || echo "No commit needed"
+
+
       - name: Commit and push JSON data
         run: |
           git config --local user.name "github-actions"
