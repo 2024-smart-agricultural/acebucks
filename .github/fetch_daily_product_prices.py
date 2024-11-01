@@ -41,6 +41,7 @@ def fetch_daily_prices():
             'p_cert_key': KAMIS_KEY,
             'p_cert_id': KAMIS_ID,
             'p_returntype': 'json',
+            'p_startday': '2024-01-01',  # 시작 날짜 설정
             'p_endday': datetime.now().strftime("%Y-%m-%d"),  # 현재 날짜를 종료 날짜로 설정
             'p_itemcode': item_code  # 각 품목 코드에 대해 반복 요청
         }
@@ -96,6 +97,6 @@ def fetch_daily_prices():
     # 업데이트된 데이터를 JSON 파일로 저장
     with open(json_file_path, 'w', encoding='utf-8') as f:
         json.dump(existing_data, f, ensure_ascii=False, indent=4)
-        
+
 if __name__ == "__main__":
     fetch_daily_prices()
