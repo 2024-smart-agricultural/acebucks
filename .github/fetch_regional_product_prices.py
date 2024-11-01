@@ -27,12 +27,11 @@ excluded_item_codes = [
 
 # code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
 def load_item_codes_from_json(file_path='acebucks/docs/code_mappings.json'):
+    abs_path = os.path.abspath(file_path)
+    print(f"파일 경로 확인: {abs_path}")  # 디버그용으로 절대 경로 출력
     try:
-        print(f"파일 경로 확인: {file_path}")  # 디버깅 메시지 추가
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(abs_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            print(f"파일 데이터: {data}")  # 추가된 디버깅 메시지
-
             if 'item_mapping' in data:
                 item_codes = [code for code in data['item_mapping'].keys() if code not in excluded_item_codes]
                 return item_codes
