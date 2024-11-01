@@ -27,18 +27,20 @@ def fetch_daily_prices():
         data.pop('p_cert_id', None)
         data.pop('p_startday', None)
 
-        # NaN 값을 null로 변환
-        def replace_nan(obj):
+        # NaN 값 또는 문자열 "null"을 None으로 변환
+        def replace_invalid_values(obj):
             if isinstance(obj, list):
-                return [replace_nan(i) for i in obj]
+                return [replace_invalid_values(i) for i in obj]
             elif isinstance(obj, dict):
-                return {k: replace_nan(v) for k, v in obj.items()}
+                return {k: replace_invalid_values(v) for k, v in obj.items()}
             elif isinstance(obj, float) and np.isnan(obj):
+                return None
+            elif isinstance(obj, str) and obj.lower() == "null":
                 return None
             else:
                 return obj
 
-        cleaned_data = replace_nan(data)
+        cleaned_data = replace_invalid_values(data)
     
         # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
         json_file_path = 'docs/daily_poduct_prices.json'
