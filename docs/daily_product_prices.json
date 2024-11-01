@@ -1,38 +1,40 @@
-{
-    "condition": [
-        {
-            "p_startday": "2024-01-01",
-            "p_endday": "2024-10-31",
-            "p_itemcategorycode": "100",
-            "p_itemcode": "111",
-            "p_kindcode": "01",
-            "p_productrankcode": "04",
-            "p_countycode": [],
-            "p_convert_kg_yn": "N",
-            "p_id": [],
-            "p_returntype": "json"
-        }
-    ],
-    "data": [
-        "900"
-    ]
-}
-{
-    "condition": [
-        {
-            "p_startday": "2024-01-01",
-            "p_endday": "2024-11-01",
-            "p_itemcategorycode": "100",
-            "p_itemcode": "111",
-            "p_kindcode": "01",
-            "p_productrankcode": "04",
-            "p_countycode": [],
-            "p_convert_kg_yn": "N",
-            "p_id": [],
-            "p_returntype": "json"
-        }
-    ],
-    "data": [
-        "900"
-    ]
-}
+[
+    {
+        "condition": [
+            {
+                "p_startday": "2024-01-01",
+                "p_endday": "2024-10-31",
+                "p_itemcategorycode": "100",
+                "p_itemcode": "111",
+                "p_kindcode": "01",
+                "p_productrankcode": "04",
+                "p_countycode": [],
+                "p_convert_kg_yn": "N",
+                "p_id": [],
+                "p_returntype": "json"
+            }
+        ],
+        "data": [
+            "900"
+        ]
+    },
+    {
+        "condition": [
+            {
+                "p_startday": "2024-01-01",
+                "p_endday": "2024-11-01",
+                "p_itemcategorycode": "100",
+                "p_itemcode": "111",
+                "p_kindcode": "01",
+                "p_productrankcode": "04",
+                "p_countycode": [],
+                "p_convert_kg_yn": "N",
+                "p_id": [],
+                "p_returntype": "json"
+            }
+        ],
+        "data": [
+            "900"
+        ]
+    }
+]
