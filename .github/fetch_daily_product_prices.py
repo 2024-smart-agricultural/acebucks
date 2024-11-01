@@ -57,11 +57,6 @@ def fetch_daily_product_prices():
     all_data = []
 
     for item_code in item_codes:
-        # 제외된 품목 코드는 아예 실행하지 않음
-        if item_code in excluded_item_codes:
-            print(f"품목 코드 {item_code}는 제외된 코드입니다. 실행하지 않습니다.")
-            continue
-
         retry_count = 3  # 최대 3번 재시도
 
         for attempt in range(retry_count):
@@ -75,12 +70,11 @@ def fetch_daily_product_prices():
                 'p_itemcode': item_code  # 각 품목 코드에 대해 반복 요청
             }
 
-            response = requests.get(BASE_URL, params=params)
-
-            # XML 응답 처리
-            if params['p_returntype'] == 'xml' and response.status_code == 200:
-                if response.content.strip():  # 응답이 비어 있지 않은지 확인
-                    try:
+            try:
+                response = requests.get(BASE_URL, params=params, timeout=10)  # 타임아웃 10초 설정
+                if response.status_code == 200:
+                    if response.content.strip():  # 응답이 비어 있지 않은지 확인
+                        try:
                         # XML 파싱
                         root = ET.fromstring(response.content)
     
@@ -105,8 +99,6 @@ def fetch_daily_product_prices():
                         print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
                 else:
                     print(f"서버에서 빈 응답을 반환했습니다 (품목 코드: {item_code}).")
-            else:
-                print(f"API 요청 실패 (품목 코드: {item_code}, 상태 코드: {response.status_code})")
 
             # JSON 응답 처리
             elif params['p_returntype'] == 'json' and response.status_code == 200:
@@ -148,9 +140,6 @@ def fetch_daily_product_prices():
                     print(f"최대 재시도 횟수 초과 (품목 코드: {item_code})")
 
         # 각 요청 사이에 딜레이 추가
-        time.sleep(1)  # 서버 과부하 방지를 위해 1초 대기
-
-    # 각 요청 사이에 딜레이 추가
         time.sleep(1)  # 서버 과부하 방지를 위해 1초 대기
 
     # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
