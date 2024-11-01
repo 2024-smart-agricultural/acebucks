@@ -8,46 +8,78 @@ KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
 URL = "http://www.kamis.or.kr/service/price/xml.do?action=periodProductList"
 
-def fetch_daily_prices():
+# 1. 전체 품목 코드 리스트 가져오기
+def fetch_item_codes():
     params = {
+        'action': 'ItemCodeList',  # 전체 품목 코드 가져오는 액션
         'p_cert_key': KAMIS_KEY,
         'p_cert_id': KAMIS_ID,
-        'p_returntype': 'json',
-        'p_endday': datetime.now().strftime("%Y-%m-%d"),  # 현재 날짜를 종료 날짜로 설정
-        'p_itemcategorycode': '',  # 모든 품목 카테고리 가져오기
-        'p_itemcode': ''  # 모든 품목 코드 가져오기
+        'p_returntype': 'json'
     }
-    
-    response = requests.get(URL, params=params)
+
+    response = requests.get(BASE_URL, params=params)
     if response.status_code == 200:
         data = response.json()
+        item_codes = [item['p_itemcode'] for item in data['itemList']]
+        return item_codes
+    else:
+        print(f"전체 품목 코드 요청 실패: 상태 코드 {response.status_code}")
+        return []
 
-        # 특정 키 제거
-        def remove_keys(obj, keys_to_remove):
-            if isinstance(obj, list):
-                return [remove_keys(i, keys_to_remove) for i in obj]
-            elif isinstance(obj, dict):
-                return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
-            else:
-                return obj
+# 2. 각 품목에 대한 가격 정보 가져오기
+def fetch_daily_prices():
+    item_codes = fetch_item_codes()
+    if not item_codes:
+        print("품목 코드 목록을 가져오는 데 실패했습니다.")
+        return
 
-        keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
-        cleaned_data = remove_keys(data, keys_to_remove)
+    all_data = []
 
-        # NaN 값 또는 문자열 "null"을 None으로 변환
-        def replace_invalid_values(obj):
-            if isinstance(obj, list):
-                return [replace_invalid_values(i) for i in obj]
-            elif isinstance(obj, dict):
-                return {k: replace_invalid_values(v) for k, v in obj.items()}
-            elif isinstance(obj, float) and np.isnan(obj):
-                return None
-            elif isinstance(obj, str) and obj.lower() == "null":
-                return None
-            else:
-                return obj
+    for item_code in item_codes:
+        params = {
+            'action': 'periodProductList',
+            'p_cert_key': KAMIS_KEY,
+            'p_cert_id': KAMIS_ID,
+            'p_returntype': 'json',
+            'p_endday': datetime.now().strftime("%Y-%m-%d"),  # 현재 날짜를 종료 날짜로 설정
+            'p_itemcode': item_code  # 각 품목 코드에 대해 반복 요청
+        }
 
-        cleaned_data = replace_invalid_values(cleaned_data)
+        response = requests.get(BASE_URL, params=params)
+        if response.status_code == 200:
+            data = response.json()
+
+            # 특정 키 제거
+            def remove_keys(obj, keys_to_remove):
+                if isinstance(obj, list):
+                    return [remove_keys(i, keys_to_remove) for i in obj]
+                elif isinstance(obj, dict):
+                    return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
+                else:
+                    return obj
+
+            keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
+            cleaned_data = remove_keys(data, keys_to_remove)
+
+            # NaN 값 또는 문자열 "null"을 None으로 변환
+            def replace_invalid_values(obj):
+                if isinstance(obj, list):
+                    return [replace_invalid_values(i) for i in obj]
+                elif isinstance(obj, dict):
+                    return {k: replace_invalid_values(v) for k, v in obj.items()}
+                elif isinstance(obj, float) and np.isnan(obj):
+                    return None
+                elif isinstance(obj, str) and obj.lower() == "null":
+                    return None
+                else:
+                    return obj
+
+            cleaned_data = replace_invalid_values(cleaned_data)
+
+            # 수집된 데이터를 리스트에 추가
+            all_data.append(cleaned_data)
+        else:
+            print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status_code}")
     
         # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
         json_file_path = 'docs/daily_product_prices.json'
