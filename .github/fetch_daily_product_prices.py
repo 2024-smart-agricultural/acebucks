@@ -4,6 +4,7 @@ import json
 import os
 from datetime import datetime
 import numpy as np
+from datetime import datetime, timedelta  # timedelta를 추가로 가져옴
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
@@ -33,7 +34,7 @@ def replace_invalid_values(obj):
         return [replace_invalid_values(i) for i in obj]
     elif isinstance(obj, dict):
         return {k: replace_invalid_values(v) for k, v in obj.items()}
-    elif isinstance(obj, float) and np.isnan(obj):
+    elif isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)):
         return None
     elif isinstance(obj, str) and obj.lower() == "null":
         return None
@@ -113,8 +114,11 @@ def fetch_daily_product_prices():
         existing_data = all_data
 
     # 업데이트된 데이터를 JSON 파일로 저장
-    with open(json_file_path, 'w', encoding='utf-8') as f:
-        json.dump(existing_data, f, ensure_ascii=False, indent=4)
+    try:
+        with open(json_file_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_data, f, ensure_ascii=False, indent=4, allow_nan=False)
+    except ValueError as e:
+        print(f"JSON 저장 중 오류 발생: {e}")
 
 if __name__ == "__main__":
     fetch_daily_product_prices()
