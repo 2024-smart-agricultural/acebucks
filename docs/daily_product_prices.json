@@ -1256,5 +1256,14 @@
         "data": [
             "900"
         ]
+    },
+    {
+        "itemname": "",
+        "kindname": "",
+        "countyname": "",
+        "marketname": "",
+        "yyyy": "",
+        "regday": "",
+        "price": ""
     }
 ]
