@@ -9,12 +9,24 @@ KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
 BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=regionalPriceList"
 
+# code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
 def load_item_codes_from_json(file_path='docs/code_mappings.json'):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             if 'item_mapping' in data:
                 item_codes = list(data['item_mapping'].keys())
+
+                # 수동으로 제거할 품목 코드
+                invalid_codes = [
+                    '111', '112', '141', '142', '143', '144', '151', '152', '161', '113', '162', 
+                    '163', '164', '114', '211', '212', '279', '280', '213', '214', '215', '216', 
+                    '221', '222', '223', '224', '225', '226', '231'
+                ]
+
+                # 수동으로 제거할 품목 코드를 리스트에서 제외
+                item_codes = [code for code in item_codes if code not in invalid_codes]
+
                 return item_codes
             else:
                 print(f"'item_mapping' 키를 찾을 수 없습니다. JSON 데이터: {data}")
