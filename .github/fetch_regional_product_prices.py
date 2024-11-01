@@ -73,6 +73,33 @@ def fetch_regional_prices():
 
             except ET.ParseError:
                 print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+
+        # JSON 응답 처리
+        elif params['p_returntype'] == 'json' and response.status_code == 200:
+            try:
+                data = response.json()
+
+                # 특정 키 제거
+                def remove_keys(obj, keys_to_remove):
+                    if isinstance(obj, list):
+                        return [remove_keys(i, keys_to_remove) for i in obj]
+                    elif isinstance(obj, dict):
+                        return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
+                    else:
+                        return obj
+
+                keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
+                cleaned_data = remove_keys(data, keys_to_remove)
+
+                # NaN 값 및 유효하지 않은 값 변환
+                cleaned_data = replace_invalid_values(cleaned_data)
+
+                # 수집된 데이터를 리스트에 추가
+                all_data.append(cleaned_data)
+
+            except json.JSONDecodeError:
+                print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+
         else:
             print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status_code}, 응답 내용: {response.text}")
 
