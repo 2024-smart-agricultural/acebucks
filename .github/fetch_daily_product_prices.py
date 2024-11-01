@@ -6,7 +6,7 @@ from datetime import datetime
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
-URL = "http://www.kamis.or.kr/service/price/xml.do?action=periodProductList"
+BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=periodProductList"
 
 # 1. 전체 품목 코드 리스트 가져오기
 def fetch_item_codes():
