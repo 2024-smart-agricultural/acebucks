@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 import numpy as np
 from datetime import datetime, timedelta  # timedelta를 추가로 가져옴
+import time
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
