@@ -28,9 +28,9 @@
         const mappingResponse = await fetch(mappingFilename);
         const mappings = await mappingResponse.json();
 
-        const itemCategoryMapping = mappings.item_category_mapping;
-        const itemMapping = mappings.item_mapping;
-        const productRankMapping = mappings.product_rank_mapping;
+        const itemCategoryMapping = mappings.p_itemcategorycode;
+        const itemMapping = mappings.p_itemcode;
+        const productRankMapping = mappings.p_productrankcode;
 
         // 가격 정보 불러오기
         const response = await fetch(filename);
@@ -90,8 +90,12 @@
       }
     }
 
-    // 파일 경로를 사용해 데이터를 가져와 테이블로 표시
-    fetchAndDisplayDailyPrices('./daily_product_prices_2024-10-31.json', 'daily-prices');
+    // GitHub Pages에서 호스팅하는 최신 JSON 파일을 가져와서 표시
+    fetchAndDisplayRegionalPrices(
+      './regional_product_prices_latest.json',
+      'regional-prices',
+      './data/code_mappings.json'
+    );
   </script>
 </body>
 <body>
@@ -105,9 +109,9 @@
         const mappingResponse = await fetch(mappingFilename);
         const mappings = await mappingResponse.json();
 
-        const itemCategoryMapping = mappings.item_category_mapping;
-        const itemMapping = mappings.item_mapping;
-        const productRankMapping = mappings.product_rank_mapping;
+        const itemCategoryMapping = mappings.p_itemcategorycode;
+        const itemMapping = mappings.p_itemcode;
+        const productRankMapping = mappings.p_productrankcode;
 
         // 가격 데이터 불러오기
         const response = await fetch(priceFilename);
@@ -164,8 +168,12 @@
       }
     }
 
-    // 파일 경로를 사용해 데이터를 가져와 테이블로 표시
-    fetchAndDisplayRegionalPrices('./regional_product_prices_2024-10-31.json', 'regional-prices', './data/code_mappings.json');
+    // GitHub Pages에서 호스팅하는 최신 JSON 파일을 가져와서 표시
+    fetchAndDisplayRegionalPrices(
+      './regional_product_prices_latest.json',
+      'regional-prices',
+      './data/code_mappings.json'
+    );
   </script>
 </body>
 </html>
