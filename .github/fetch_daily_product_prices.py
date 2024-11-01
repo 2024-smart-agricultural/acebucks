@@ -26,7 +26,7 @@ def load_item_codes_from_json(file_path='docs/code_mappings.json'):
     except json.JSONDecodeError:
         print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
         return []
-        
+
 # 2. 지역별 가격 정보 가져오기
 def fetch_regional_prices():
     item_codes = load_item_codes_from_json('docs/code_mappings.json')
@@ -37,56 +37,54 @@ def fetch_regional_prices():
     all_data = []
 
     for item_code in item_codes:
-        params = {
-            'action': 'regionalPriceList',
-            'p_cert_key': KAMIS_KEY,
-            'p_cert_id': KAMIS_ID,
-            'p_returntype': 'json',
-            'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 종료일 설정 (오늘)
-            'p_itemcode': item_code,  # 각 품목 코드에 대해 반복 요청
-            'p_kindcode': '',  # 품종 코드 설정하지 않음 (모든 것 가져오기)
-            'p_productrankcode': '',  # 모든 등급에 대해 가져오기
-            'p_countycode': ''  # 지역 코드도 설정하지 않음 (모든 지역 가져오기)
-        }
+        retry_count = 3  # 최대 3번 재시도
 
-        response = requests.get(BASE_URL, params=params)
-        if response.status_code == 200:
-            try:
-                data = response.json()
+        for attempt in range(retry_count):
+            params = {
+                'action': 'regionalPriceList',
+                'p_cert_key': KAMIS_KEY,
+                'p_cert_id': KAMIS_ID,
+                'p_returntype': 'json',
+                'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 종료일 설정 (오늘)
+                'p_itemcode': item_code,  # 각 품목 코드에 대해 반복 요청
+                'p_kindcode': '',  # 품종 코드 설정하지 않음 (모든 것 가져오기)
+                'p_productrankcode': '',  # 모든 등급에 대해 가져오기
+                'p_countycode': ''  # 지역 코드도 설정하지 않음 (모든 지역 가져오기)
+            }
 
-                # 특정 키 제거
-                def remove_keys(obj, keys_to_remove):
-                    if isinstance(obj, list):
-                        return [remove_keys(i, keys_to_remove) for i in obj]
-                    elif isinstance(obj, dict):
-                        return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
-                    else:
-                        return obj
+            response = requests.get(BASE_URL, params=params)
 
-                keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
-                cleaned_data = remove_keys(data, keys_to_remove)
+            if response.status_code == 200:
+                try:
+                    data = response.json()
 
-                # NaN 값 또는 문자열 "null"을 None으로 변환
-                def replace_invalid_values(obj):
-                    if isinstance(obj, list):
-                        return [replace_invalid_values(i) for i in obj]
-                    elif isinstance(obj, dict):
-                        return {k: replace_invalid_values(v) for k, v in obj.items()}
-                    elif isinstance(obj, float) and np.isnan(obj):
-                        return None
-                    elif isinstance(obj, str) and obj.lower() == "null":
-                        return None
-                    else:
-                        return obj
+                    # 특정 키 제거
+                    def remove_keys(obj, keys_to_remove):
+                        if isinstance(obj, list):
+                            return [remove_keys(i, keys_to_remove) for i in obj]
+                        elif isinstance(obj, dict):
+                            return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
+                        else:
+                            return obj
 
-                cleaned_data = replace_invalid_values(cleaned_data)
+                    keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
+                    cleaned_data = remove_keys(data, keys_to_remove)
 
-                # 수집된 데이터를 리스트에 추가
-                all_data.append(cleaned_data)
-            except json.JSONDecodeError:
-                print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
-        else:
-            print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status_code}, 응답 내용: {response.text}")
+                    # 수집된 데이터를 리스트에 추가
+                    all_data.append(cleaned_data)
+                    break  # 성공하면 재시도 루프 종료
+                except json.JSONDecodeError:
+                    print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+                    break  # JSON 파싱 오류는 재시도하지 않음
+            else:
+                print(f"API 요청 실패 (품목 코드: {item_code}, 시도 횟수: {attempt + 1}): 상태 코드 {response.status_code}")
+                if attempt < retry_count - 1:
+                    time.sleep(2)  # 재시도 전에 2초 대기
+                else:
+                    print(f"최대 재시도 횟수 초과 (품목 코드: {item_code})")
+
+        # 각 요청 사이에 딜레이 추가
+        time.sleep(1)  # 서버 과부하 방지를 위해 1초 대기
 
     # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
     json_file_path = 'docs/daily_product_prices.json'
