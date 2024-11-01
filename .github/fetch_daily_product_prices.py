@@ -36,7 +36,7 @@ def fetch_daily_prices():
         cleaned_data = replace_nan(data)
     
         # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
-        json_file_path = 'docs/daily_rpoduct_prices.json'
+        json_file_path = 'docs/daily_poduct_prices.json'
         if os.path.exists(json_file_path):
             with open(json_file_path, 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
