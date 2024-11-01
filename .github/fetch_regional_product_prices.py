@@ -14,9 +14,13 @@ BASE_URL = "http://www.kamis.or.kr/service/price/xml.do?action=regionalPriceList
 excluded_item_codes = [
     '111', '112', '141', '142', '143', '144', '151', '152', '161', '113', '162', 
     '163', '164', '114', '211', '212', '279', '280', '213', '214', '215', '216', 
-    '221', '222', '223', '224', '225', '226', '231'
+    '221', '222', '223', '224', '225', '226', '231', '232', '233', '241', '242', 
+    '243', '244', '258', '259', '245', '246', '247', '248', '251', '252', '253', 
+    '254', '255', '256', '257', '261', '262', '263', '264', '265', '422', '217', 
+    '218', '266', '312', '313'
 ]
 
+# code_mappings.json 파일에서 전체 품목 코드 리스트 가져오기
 def load_item_codes_from_json(file_path='docs/code_mappings.json'):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -46,7 +50,7 @@ async def fetch_data(session, item_code):
         'p_productrankcode': '',
         'p_countycode': ''
     }
-    
+
     try:
         async with session.get(BASE_URL, params=params, timeout=20) as response:
             if response.status == 200:
@@ -71,6 +75,9 @@ async def fetch_data(session, item_code):
                     return data_list
                 except ET.ParseError:
                     print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response_text}")
+            elif response.status == 404:
+                print(f"품목 코드 {item_code}에 대한 데이터가 없습니다 (상태 코드 404).")
+                return None  # 데이터를 제외하도록 None을 반환
             else:
                 print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status}")
     except Exception as e:
