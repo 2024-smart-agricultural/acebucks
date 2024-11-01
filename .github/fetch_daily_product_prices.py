@@ -3,6 +3,7 @@ import requests
 import json
 import os
 from datetime import datetime
+import numpy as np
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
 KAMIS_ID = os.getenv("P_CERT_ID")
