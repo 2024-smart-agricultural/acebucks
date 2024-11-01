@@ -3,6 +3,7 @@ import requests
 import json
 import os
 from datetime import datetime
+import xml.etree.ElementTree as ET
 import numpy as np
 
 KAMIS_KEY = os.getenv("KAMIS_KEY")
@@ -27,19 +28,6 @@ def load_item_codes_from_json(file_path='docs/code_mappings.json'):
         print(f"JSON 파일을 파싱할 수 없습니다: {file_path}")
         return []
 
-# NaN 값 또는 문자열 "null"을 None으로 변환하는 함수
-def replace_invalid_values(obj):
-    if isinstance(obj, list):
-        return [replace_invalid_values(i) for i in obj]
-    elif isinstance(obj, dict):
-        return {k: replace_invalid_values(v) for k, v in obj.items()}
-    elif isinstance(obj, float) and np.isnan(obj):
-        return None
-    elif isinstance(obj, str) and obj.lower() == "null":
-        return None
-    else:
-        return obj
-
 # 2. 지역별 가격 정보 가져오기
 def fetch_regional_prices():
     item_codes = load_item_codes_from_json('docs/code_mappings.json')
@@ -54,7 +42,7 @@ def fetch_regional_prices():
             'action': 'regionalPriceList',
             'p_cert_key': KAMIS_KEY,
             'p_cert_id': KAMIS_ID,
-            'p_returntype': 'json',
+            'p_returntype': 'xml',  # XML 형식으로 반환 요청
             'p_endday': datetime.now().strftime('%Y-%m-%d'),  # 종료일 설정 (오늘)
             'p_itemcode': item_code,  # 각 품목 코드에 대해 반복 요청
             'p_kindcode': '',  # 품종 코드 설정하지 않음 (모든 것 가져오기)
@@ -65,27 +53,26 @@ def fetch_regional_prices():
         response = requests.get(BASE_URL, params=params)
         if response.status_code == 200:
             try:
-                data = response.json()
+                # XML 파싱
+                root = ET.fromstring(response.content)
 
-                # 특정 키 제거
-                def remove_keys(obj, keys_to_remove):
-                    if isinstance(obj, list):
-                        return [remove_keys(i, keys_to_remove) for i in obj]
-                    elif isinstance(obj, dict):
-                        return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
-                    else:
-                        return obj
+                # <item> 요소들을 찾아서 필요한 데이터 추출
+                items = root.findall('.//item')
+                for item in items:
+                    data = {
+                        'countyname': item.find('countyname').text if item.find('countyname') is not None else '',
+                        'itemname': item.find('itemname').text if item.find('itemname') is not None else '',
+                        'kindname': item.find('kindname').text if item.find('kindname') is not None else '',
+                        'unit': item.find('unit').text if item.find('unit') is not None else '',
+                        'price': item.find('price').text if item.find('price') is not None else '',
+                        'weekprice': item.find('weekprice').text if item.find('weekprice') is not None else '',
+                        'monthprice': item.find('monthprice').text if item.find('monthprice') is not None else '',
+                        'yearprice': item.find('yearprice').text if item.find('yearprice') is not None else ''
+                    }
+                    all_data.append(data)
 
-                keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
-                cleaned_data = remove_keys(data, keys_to_remove)
-
-                # NaN 값 및 유효하지 않은 값 변환
-                cleaned_data = replace_invalid_values(cleaned_data)
-
-                # 수집된 데이터를 리스트에 추가
-                all_data.append(cleaned_data)
-            except json.JSONDecodeError:
-                print(f"JSON 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
+            except ET.ParseError:
+                print(f"XML 응답을 파싱할 수 없습니다 (품목 코드: {item_code}). 응답 내용: {response.text}")
         else:
             print(f"API 요청 실패 (품목 코드: {item_code}): 상태 코드 {response.status_code}, 응답 내용: {response.text}")
 
