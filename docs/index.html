@@ -22,25 +22,32 @@
   <div id="daily-prices"></div>
 
   <script>
-    async function fetchAndDisplayDailyPrices(filename, containerId, mappingFilename) {
+    async function fetchAndDisplayRegionalPrices(priceFilename, containerId, mappingFilename) {
       try {
-         // 매핑 정보 불러오기
+        // 매핑 파일을 불러와서 품목, 항목, 등급 이름을 얻기
         const mappingResponse = await fetch(mappingFilename);
+        if (!mappingResponse.ok) {
+          throw new Error(`매핑 파일 로드 실패: 상태 코드 ${mappingResponse.status}`);
+        }
         const mappings = await mappingResponse.json();
 
         const itemCategoryMapping = mappings.p_itemcategorycode;
         const itemMapping = mappings.p_itemcode;
         const productRankMapping = mappings.p_productrankcode;
 
-        // 가격 정보 불러오기
-        const response = await fetch(filename);
-        const data = await response.json();
-        const container = document.getElementById(containerId);
-
-        // 테이블 생성
-        let table = document.createElement('table');
-        let thead = document.createElement('thead');
-        let tbody = document.createElement('tbody');
+       // 가격 데이터 불러오기
+      const response = await fetch(priceFilename);
+      if (!response.ok) {
+        throw new Error(`가격 데이터 로드 실패: 상태 코드 ${response.status}`);
+      }
+      const data = await response.json();
+  
+      const container = document.getElementById(containerId);
+  
+      // 테이블 생성
+      let table = document.createElement('table');
+      let thead = document.createElement('thead');
+      let tbody = document.createElement('tbody');
 
         // 테이블 헤더 생성
         let headerRow = document.createElement('tr');
@@ -63,7 +70,6 @@
 
         let row = document.createElement('tr');
         let cells = [
-          condition.p_startday,
           condition.p_endday,
           condition.p_itemcategorycode,
           itemCategoryName,
@@ -92,9 +98,9 @@
 
     // GitHub Pages에서 호스팅하는 최신 JSON 파일을 가져와서 표시
     fetchAndDisplayRegionalPrices(
-      './regional_product_prices_latest.json',
+      '/acebucks/regional_product_prices.json',
       'regional-prices',
-      './data/code_mappings.json'
+      '/acebucks/data/code_mappings.json'
     );
   </script>
 </body>
@@ -107,17 +113,24 @@
       try {
         // 매핑 파일을 불러와서 품목, 항목, 등급 이름을 얻기
         const mappingResponse = await fetch(mappingFilename);
+        if (!mappingResponse.ok) {
+          throw new Error(`매핑 파일 로드 실패: 상태 코드 ${mappingResponse.status}`);
+        }
         const mappings = await mappingResponse.json();
-
+        
         const itemCategoryMapping = mappings.p_itemcategorycode;
         const itemMapping = mappings.p_itemcode;
         const productRankMapping = mappings.p_productrankcode;
 
         // 가격 데이터 불러오기
         const response = await fetch(priceFilename);
+        if (!response.ok) {
+          throw new Error(`가격 데이터 로드 실패: 상태 코드 ${response.status}`);
+        }
         const data = await response.json();
+    
         const container = document.getElementById(containerId);
-
+    
         // 테이블 생성
         let table = document.createElement('table');
         let thead = document.createElement('thead');
@@ -170,9 +183,9 @@
 
     // GitHub Pages에서 호스팅하는 최신 JSON 파일을 가져와서 표시
     fetchAndDisplayRegionalPrices(
-      './regional_product_prices_latest.json',
+      'acebucks/regional_product_prices.json',
       'regional-prices',
-      './data/code_mappings.json'
+      'acebucks/data/code_mappings.json'
     );
   </script>
 </body>
