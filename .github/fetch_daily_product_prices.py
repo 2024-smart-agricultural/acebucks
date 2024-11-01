@@ -93,6 +93,9 @@ def fetch_daily_product_prices():
                                 # 데이터가 비어있지 않으면 추가
                                 if any(value for value in data.values()):
                                     all_data.append(data)
+                                    print("수집된 데이터:", all_data)
+                                    print(f"API 응답 (품목 코드: {item_code}): {response.text}")
+
 
                             break  # 성공하면 재시도 루프 종료
                         except ET.ParseError:
