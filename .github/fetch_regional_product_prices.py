@@ -120,7 +120,8 @@ def fetch_regional_prices():
         return
 
     all_data = asyncio.run(fetch_all_data(item_codes))
-    save_to_json(all_data, docs/regional_product_prices.json')
+    # 잘못된 부분 수정 ('acebucks/docs/regional_product_prices.json'의 따옴표 누락 수정)
+    save_to_json(all_data, 'acebucks/docs/regional_product_prices.json')
 
 if __name__ == "__main__":
     fetch_regional_prices()
