@@ -22,10 +22,17 @@ def fetch_daily_prices():
     if response.status_code == 200:
         data = response.json()
 
-        # API 키 정보 제거
-        data.pop('p_cert_key', None)
-        data.pop('p_cert_id', None)
-        data.pop('p_startday', None)
+        # 특정 키 제거
+        def remove_keys(obj, keys_to_remove):
+            if isinstance(obj, list):
+                return [remove_keys(i, keys_to_remove) for i in obj]
+            elif isinstance(obj, dict):
+                return {k: remove_keys(v, keys_to_remove) for k, v in obj.items() if k not in keys_to_remove}
+            else:
+                return obj
+
+        keys_to_remove = ['p_cert_key', 'p_cert_id', 'p_startday', 'p_key', 'p_id']
+        cleaned_data = remove_keys(data, keys_to_remove)
 
         # NaN 값 또는 문자열 "null"을 None으로 변환
         def replace_invalid_values(obj):
@@ -40,10 +47,10 @@ def fetch_daily_prices():
             else:
                 return obj
 
-        cleaned_data = replace_invalid_values(data)
+        cleaned_data = replace_invalid_values(cleaned_data)
     
         # 기존 JSON 파일 불러오기 또는 새로운 파일 생성
-        json_file_path = 'docs/daily_poduct_prices.json'
+        json_file_path = 'docs/daily_product_prices.json'
         if os.path.exists(json_file_path):
             with open(json_file_path, 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
@@ -58,6 +65,6 @@ def fetch_daily_prices():
             json.dump(existing_data, f, ensure_ascii=False, indent=4)
     else:
         print(f"API 요청 실패: 상태 코드 {response.status_code}")
-
+        
 if __name__ == "__main__":
     fetch_daily_prices()
